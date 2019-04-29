@@ -1,0 +1,93 @@
+@startuml
+actor other_sh
+actor core
+participant SystemHandle
+participant Publisher
+participant Subscriber
+participant Conversion
+participant Connector
+participant Listener
+
+== initialization ==
+core -> SystemHandle: configure
+activate SystemHandle
+SystemHandle -> Connector: __init__()
+Connector -> Listener: __init__()
+core <-- SystemHandle: status
+deactivate SystemHandle
+
+core -> SystemHandle: advertise
+activate SystemHandle
+SystemHandle -> Publisher: __init__()
+core <-- SystemHandle: TopicPublisher
+deactivate SystemHandle
+
+core -> SystemHandle: subscribe
+activate SystemHandle
+SystemHandle -> Subscriber: __init__()
+SystemHandle -> Subscriber: subscribe()
+activate Subscriber
+Subscriber -> Connector: register_subscription()
+activate Connector
+Connector -> Listener: run()
+activate Listener
+Listener -> Listener: listen()
+Connector -> Connector: request()
+Subscriber <-- Connector: status
+deactivate Connector
+SystemHandle <-- Subscriber: status
+deactivate Subscriber
+core <-- SystemHandle: status
+deactivate SystemHandle
+
+core -> SystemHandle: spin_once
+activate SystemHandle
+SystemHandle -> Connector: get_state()
+activate Connector
+SystemHandle <-- Connector: status
+deactivate Connector
+core <-- SystemHandle: status
+deactivate SystemHandle
+
+== to fiware ==
+other_sh -> Publisher: publish()
+activate Publisher
+Publisher -> Conversion: soss_to_fiware()
+activate Conversion
+Publisher <-- Conversion: fiware_topic
+deactivate Conversion
+Publisher -> Connector: update_entity()
+activate Connector
+Connector -> Connector: request()
+Publisher <-- Connector: status
+deactivate Connector
+other_sh <-- Publisher: status
+deactivate Publisher
+
+== from fiware ==
+Listener -> Connector: receive_cb()
+activate Connector
+Connector -> Subscriber: receive_cb()
+activate Subscriber
+Subscriber -> Conversion: fiware_to_soss()
+activate Conversion
+Subscriber <-- Conversion: soss_topic
+deactivate Conversion
+Subscriber -> other_sh: soss_subscription_cb()
+Connector <-- Subscriber: ok
+deactivate Subscriber
+Listener <-- Connector: ok
+deactivate Connector
+
+== destruction ==
+SystemHandle -> Subscriber: __destroy__()
+activate Subscriber
+Subscriber -> Connector: unregister_subscription()
+activate Connector
+Connector -> Connector: request()
+Subscriber <-- Connector: status
+deactivate Connector
+deactivate Subscriber
+deactivate Listener
+
+@enduml

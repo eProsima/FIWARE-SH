@@ -1,0 +1,58 @@
+@startuml
+
+SystemHandler "0..n" *--> Publisher
+SystemHandler "0..n" *--> Subscriber
+SystemHandler *--> Connector
+Publisher o--> Connector
+Subscriber o--> Connector
+Connector *--> Listener
+
+Publisher ..> Conversion
+Subscriber ..> Conversion
+
+class SystemHandler {
+    + configure() override
+    + okay() override
+    + spin_once() override
+    + subscribe() override
+    + advertise() override
+}
+
+class Connector {
+    - subscription_map<subscription_id, callback>
+    + subscription_id register_subscription(entity, callback)
+    + bool unregister_subscription(subscription_id)
+    + bool update_entity(entity, json_message)
+    - void receive(fiware_message);
+}
+
+class Publisher {
+    - topic_name
+    - message_type
+    + publish(soss_message)
+}
+
+class Subscriber {
+    - topic_name
+    - message_type
+    - subscription_id
+    + subscribe()
+    + unsuscribe()
+    + receive(json_message)
+}
+
+class Conversion << (S,#FF7700) Singleton >> {
+    + fiware_message soss_to_fiware(soss_message)
+    + soss_message fiware_to_soss(fiware_message)
+}
+
+class Listener {
+    - read_callback
+    + run()
+    + stop()
+    + listen()
+
+}
+
+@enduml
+

@@ -1,0 +1,11 @@
+systems:
+    ros2: { type: ros2 }
+    fiware: { type: fiware, host: "192.168.1.59", port: 1026, subscription_host: "192.168.1.56", subscription_port: 1028}
+
+routes:
+    fiware_to_ros2: { from: fiware, to: ros2 }
+    ros2_to_fiware: { from: ros2, to: fiware }
+
+topics:
+    hello_fiware: { type: "std_msgs/String", route: ros2_to_fiware }
+    hello_ros2: { type: "std_msgs/String", route: fiware_to_ros2 }

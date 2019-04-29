@@ -1,0 +1,3 @@
+[submodule "thirdparty/curlpp"]
+	path = thirdparty/curlpp
+	url = https://github.com/lemunozm/curlpp.git
