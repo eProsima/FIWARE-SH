@@ -19,7 +19,7 @@ soss_wp
 5. Execute colcon: `colcon build --packages-up-to soss-fiware`
 6. source soss environment: `source install/local_setup.bash`
 
-## Run soss (with rso2)
+## Run soss (with ros2)
 0. Source the ros2 environment and compile with `--packages-up-to soss-ros2-test`
 1. Run soss (with the sample configuration): `soss sample/hello_fiware_ros2.yaml`
 
