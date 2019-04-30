@@ -16,6 +16,7 @@
 */
 
 #include "SystemHandle.hpp"
+#include "NGSIV2Connector.hpp"
 
 #include <soss/Mix.hpp>
 #include <soss/Search.hpp>
@@ -26,6 +27,8 @@
 namespace soss {
 namespace fiware{
 
+SystemHandle::~SystemHandle() = default;
+
 bool SystemHandle::configure(
     const RequiredTypes& /* types */,
     const YAML::Node& configuration)
@@ -35,7 +38,7 @@ bool SystemHandle::configure(
         !configuration["subscription_host"] ||
         !configuration["subscription_port"])
     {
-        std::cerr << "[soss-fiware]: Configuration must have the host and port and the subscription port." << std::endl;
+        std::cerr << "[soss-fiware]: configuration must have the host and port and the subscription port." << std::endl;
         return false;
     }
 
@@ -44,9 +47,9 @@ bool SystemHandle::configure(
     std::string subscription_host = configuration["subscription_host"].as<std::string>();
     uint16_t subscription_port = configuration["subscription_port"].as<uint16_t>();
 
-    fiware_connector_ = std::unique_ptr<Connector>(new Connector(host, port, subscription_host, subscription_port));
+    fiware_connector_ = std::unique_ptr<NGSIV2Connector>(new NGSIV2Connector(host, port, subscription_host, subscription_port));
 
-    std::cout << "[soss-fiware]: Configured!" << std::endl;
+    std::cout << "[soss-fiware]: configured!" << std::endl;
     return true;
 }
 
@@ -72,9 +75,9 @@ bool SystemHandle::subscribe(
 
     if (!subscriber->subscribe())
     {
-        std::cerr << "[soss-fiware]: Error when subscribing to Fiware. "
-            << "Topic: " << topic_name << ". "
-            << "Type: " << message_type << ". "
+        std::cerr << "[soss-fiware]: error when subscribing to fiware, "
+            "topic: " << topic_name << ", "
+            "type: " << message_type << " "
             << std::endl;
 
         return false;
@@ -82,9 +85,9 @@ bool SystemHandle::subscribe(
 
     subscribers_.push_back(std::move(subscriber));
 
-    std::cout << "[soss-fiware]: Subscriber created. "
-        << "Topic: " << topic_name << ". "
-        << "Type: " << message_type << ". "
+    std::cout << "[soss-fiware]: subscriber created, "
+        "topic: " << topic_name << ", "
+        "type: " << message_type << " "
         << std::endl;
 
     return true;
@@ -99,9 +102,9 @@ std::shared_ptr<TopicPublisher> SystemHandle::advertise(
 
     publishers_.push_back(std::move(publisher));
 
-    std::cout << "[soss-fiware]: Publisher created. "
-        << "Topic: " << topic_name << ". "
-        << "Type: " << message_type << ". "
+    std::cout << "[soss-fiware]: publisher created, "
+        "topic: " << topic_name << ", "
+        "type: " << message_type << " "
         << std::endl;
 
     return publishers_.back();

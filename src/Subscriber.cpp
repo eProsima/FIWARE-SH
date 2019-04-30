@@ -18,6 +18,8 @@
 #include "Subscriber.hpp"
 #include "Conversion.hpp"
 
+#include "NGSIV2Connector.hpp"
+
 #include <soss/Message.hpp>
 
 #include <functional>
@@ -27,12 +29,12 @@ namespace soss {
 namespace fiware {
 
 Subscriber::Subscriber(
-        Connector* connector,
+        NGSIV2Connector* fiware_connector,
         const std::string& topic_name,
         const std::string& message_type,
         TopicSubscriberSystem::SubscriptionCallback soss_callback)
 
-    : fiware_connector_(connector)
+    : fiware_connector_(fiware_connector)
     , topic_name_{topic_name}
     , message_type_{message_type}
     , subscription_id_{}
@@ -42,7 +44,7 @@ Subscriber::Subscriber(
 
 Subscriber::~Subscriber()
 {
-    unsubscribe();
+    fiware_connector_->unregister_subscription(subscription_id_);
 }
 
 bool Subscriber::subscribe()
@@ -53,16 +55,10 @@ bool Subscriber::subscribe()
     return !subscription_id_.empty();
 }
 
-bool Subscriber::unsubscribe()
-{
-    return fiware_connector_->unregister_subscription(subscription_id_);
-}
-
 void Subscriber::receive(const Json& fiware_message)
 {
     std::cout << "[soss-fiware][subscriber]: translate message: fiware -> soss "
-        << "(" << topic_name_ << ") "
-        << std::endl;
+        "(" << topic_name_ << ") " << std::endl;
 
     soss::Message soss_message = Conversion::fiware_to_soss(message_type_, fiware_message);
 

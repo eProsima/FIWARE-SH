@@ -17,6 +17,7 @@
 
 #include "Publisher.hpp"
 #include "Conversion.hpp"
+#include "NGSIV2Connector.hpp"
 
 #include <iostream>
 
@@ -25,11 +26,11 @@ namespace fiware {
 
 
 Publisher::Publisher(
-        Connector* connector,
+        NGSIV2Connector* fiware_connector,
         const std::string& topic_name,
         const std::string& message_type)
 
-    : fiware_connector_{connector}
+    : fiware_connector_{fiware_connector}
     , topic_name_{topic_name}
     , message_type_{message_type}
 {
@@ -39,8 +40,7 @@ bool Publisher::publish(
         const soss::Message& soss_message)
 {
     std::cout << "[soss-fiware][publisher]: translate message: soss -> fiware "
-        << "(" << topic_name_ << ") "
-        << std::endl;
+        "(" << topic_name_ << ") " << std::endl;
 
     Json fiware_message = Conversion::soss_to_fiware(soss_message);
 

@@ -15,8 +15,8 @@
  *
 */
 
-#ifndef SOSS__FIWARE__INTERNAL__CONNECTOR_HPP
-#define SOSS__FIWARE__INTERNAL__CONNECTOR_HPP
+#ifndef SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP
+#define SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP
 
 #include "json/json.hpp"
 
@@ -31,18 +31,18 @@ namespace fiware {
 
 using Json = nlohmann::json;
 
-class Connector {
+class NGSIV2Connector {
 
     using FiwareSubscriptionCallback = std::function<void(const Json& message)>;
 
 public:
-    Connector(
+    NGSIV2Connector(
             const std::string& remote_host,
             uint16_t remote_port,
             const std::string& listener_host,
             uint16_t listener_port);
 
-    virtual ~Connector() = default;
+    virtual ~NGSIV2Connector() = default;
 
     std::string register_subscription(
             const std::string& entity,
@@ -84,4 +84,4 @@ private:
 } // namespace fiware
 } // namespace soss
 
-#endif // SOSS__FIWARE__INTERNAL__CONNECTOR_HPP
+#endif // SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP

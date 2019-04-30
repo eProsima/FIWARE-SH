@@ -18,11 +18,11 @@
 #ifndef SOSS__FIWARE__INTERNAL__SYSTEMHANDLE_HPP
 #define SOSS__FIWARE__INTERNAL__SYSTEMHANDLE_HPP
 
-#include "Connector.hpp"
-#include "Subscriber.hpp"
 #include "Publisher.hpp"
+#include "Subscriber.hpp"
 
 #include <soss/SystemHandle.hpp>
+
 #include <vector>
 #include <memory>
 
@@ -30,11 +30,13 @@ namespace soss {
 namespace fiware {
 
 
+class NGSIV2Connector;
+
 class SystemHandle : public virtual TopicSystem
 {
 public:
     SystemHandle() = default;
-    virtual ~SystemHandle() override = default;
+    virtual ~SystemHandle() override;
 
     bool configure(
         const RequiredTypes& types,
@@ -56,7 +58,7 @@ public:
         const YAML::Node& configuration) override;
 
 private:
-    std::unique_ptr<Connector> fiware_connector_;
+    std::unique_ptr<NGSIV2Connector> fiware_connector_;
     std::vector<std::shared_ptr<Publisher>> publishers_;
     std::vector<std::shared_ptr<Subscriber>> subscribers_;
 };

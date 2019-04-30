@@ -15,7 +15,7 @@
  *
 */
 
-#include "Connector.hpp"
+#include "NGSIV2Connector.hpp"
 
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Exception.hpp>
@@ -31,7 +31,7 @@ namespace fiware {
 
 using namespace std::placeholders;
 
-Connector::Connector(
+NGSIV2Connector::NGSIV2Connector(
         const std::string& remote_host,
         uint16_t remote_port,
         const std::string& listener_host,
@@ -40,12 +40,12 @@ Connector::Connector(
     : host_{remote_host}
     , port_{remote_port}
     , listener_host_{listener_host}
-    , listener_{listener_port, std::bind(&Connector::receive, this, _1)}
+    , listener_{listener_port, std::bind(&NGSIV2Connector::receive, this, _1)}
     , subscription_callbacks_{}
 {
 }
 
-std::string Connector::register_subscription(
+std::string NGSIV2Connector::register_subscription(
         const std::string& entity,
         FiwareSubscriptionCallback callback)
 {
@@ -88,13 +88,13 @@ std::string Connector::register_subscription(
     }
 
     subscription_callbacks_[subscription_id] = callback;
-    std::cout << "[soss-fiware][connector]: Subscription registered. "
+    std::cout << "[soss-fiware][connector]: subscription registered. "
                  "ID: " << subscription_id << std::endl;
 
     return subscription_id;
 }
 
-bool Connector::unregister_subscription(
+bool NGSIV2Connector::unregister_subscription(
         const std::string& subscription_id)
 {
     std::string response = request("DELETE", false, "subscriptions/" + subscription_id, Json{});
@@ -109,7 +109,7 @@ bool Connector::unregister_subscription(
 
     subscription_callbacks_.erase(subscription_id);
 
-    std::cout <<  "[soss-fiware][connector]: Connector with ID " << subscription_id <<
+    std::cout <<  "[soss-fiware][connector]: subscription with ID " << subscription_id <<
                   " unregistered successfully." << std::endl;
 
     if (subscription_callbacks_.empty() && listener_.is_running())
@@ -120,7 +120,7 @@ bool Connector::unregister_subscription(
     return true;
 }
 
-bool Connector::update_entity(
+bool NGSIV2Connector::update_entity(
         const std::string& entity,
         const Json& json_message)
 {
@@ -135,7 +135,7 @@ bool Connector::update_entity(
     return response.empty();
 }
 
-std::string Connector::request(
+std::string NGSIV2Connector::request(
         const std::string& method,
         bool response_header,
         const std::string& urn,
@@ -198,7 +198,7 @@ std::string Connector::request(
     return "";
 }
 
-void Connector::receive(
+void NGSIV2Connector::receive(
             const std::string& message)
 {
     Json json = Json::parse(message.c_str() + message.find('{'));

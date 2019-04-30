@@ -18,8 +18,6 @@
 #ifndef SOSS__FIWARE__INTERNAL__PUBLISHER_HPP
 #define SOSS__FIWARE__INTERNAL__PUBLISHER_HPP
 
-#include "Connector.hpp"
-
 #include <soss/Message.hpp>
 #include <soss/SystemHandle.hpp>
 
@@ -27,11 +25,13 @@ namespace soss {
 namespace fiware {
 
 
+class NGSIV2Connector;
+
 class Publisher : public virtual TopicPublisher
 {
 public:
     Publisher(
-            Connector* connector,
+            NGSIV2Connector* fiware_connector,
             const std::string& topic_name,
             const std::string& message_type);
 
@@ -46,7 +46,7 @@ public:
             const soss::Message& message) override;
 
 private:
-    Connector* const fiware_connector_;
+    NGSIV2Connector* const fiware_connector_;
 
     const std::string topic_name_;
     const std::string message_type_;

@@ -16,22 +16,17 @@
 
 cmake_minimum_required(VERSION 3.5.0)
 
-set(IS_TOP_LEVEL TRUE)
-if(PROJECT_SOURCE_DIR)
-    set(IS_TOP_LEVEL FALSE)
-endif()
-
 project(soss-fiware)
 
 find_package(soss-core REQUIRED)
 
 add_subdirectory(thirdparty/curlpp)
 
-# Main Library: soss-fiware.
+# Library.
 set(SRC
     src/Conversion.cpp
     src/Listener.cpp
-    src/Connector.cpp
+    src/NGSIV2Connector.cpp
     src/Publisher.cpp
     src/Subscriber.cpp
     src/SystemHandle.cpp
@@ -57,7 +52,7 @@ target_link_libraries(${PROJECT_NAME}
         pthread
 )
 
-# Install soss-fiware
+# Install
 soss_install_middleware_plugin(
     MIDDLEWARE fiware
     TARGET soss-fiware

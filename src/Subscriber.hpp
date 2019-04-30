@@ -18,7 +18,7 @@
 #ifndef SOSS__FIWARE__INTERNAL__SUBSCRIBER_HPP
 #define SOSS__FIWARE__INTERNAL__SUBSCRIBER_HPP
 
-#include "Connector.hpp"
+#include "json/json.hpp"
 
 #include <soss/SystemHandle.hpp>
 
@@ -26,11 +26,15 @@ namespace soss {
 namespace fiware {
 
 
+using Json = nlohmann::json;
+
+class NGSIV2Connector;
+
 class Subscriber
 {
 public:
     Subscriber(
-            Connector* connector,
+            NGSIV2Connector* fiware_connector,
             const std::string& topic_name,
             const std::string& message_type,
             TopicSubscriberSystem::SubscriptionCallback soss_callback);
@@ -43,12 +47,11 @@ public:
     Subscriber& operator = (Subscriber&& rhs) = delete;
 
     bool subscribe();
-    bool unsubscribe();
 
     void receive(const Json& message);
 
 private:
-    Connector* const fiware_connector_;
+    NGSIV2Connector* const fiware_connector_;
 
     const std::string topic_name_;
     const std::string message_type_;
