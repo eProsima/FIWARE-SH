@@ -12,8 +12,8 @@
 ## Proyect layout:
 - `include` folder: contains the public header files of *soss-fiware* library.
 - `src` folder: contains the implementation of *soss-fiware* library.
-- `test` folder: contains unit tests built using Catch2 library (the same as the one used in *soss*).
 - `doc` folder: contains the design and user documentation.
 - `sample` folder: contains a *.yaml* file example and utils for running *soss-fiware* easily.
-- `thirdparty` folder: contains the dependencies used in the project:
-    - `curlpp` to simplify usage of curl library.
+- `utils` folder: contains scripts and utilities.
+- `thirdparty` folder: contains the internal dependencies used in the project:
+    - `curlpp` to make http request to fiware.
