@@ -3,7 +3,7 @@ System handle to connect fiware to *soss*.
 
 ## Installation
 1. Create a colcon workspace
-2. Clone the soss project into the colcon workspace
+2. Clone the soss project into the colcon workspace (tag: `eprosima_usage`)
 3. Clone the soss-fiware plugin into the colcon workspace (with `--recursive` option)
 For example:
 ```
