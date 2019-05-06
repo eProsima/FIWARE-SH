@@ -35,7 +35,7 @@ public:
             const std::string& topic_name,
             const std::string& message_type);
 
-    ~Publisher() = default;
+    virtual ~Publisher() override = default;
 
     Publisher(const Publisher& rhs) = delete;
     Publisher& operator = (const Publisher& rhs) = delete;

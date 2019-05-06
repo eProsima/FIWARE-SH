@@ -18,9 +18,6 @@
 #include "SystemHandle.hpp"
 #include "NGSIV2Connector.hpp"
 
-#include <soss/Mix.hpp>
-#include <soss/Search.hpp>
-
 #include <iostream>
 #include <thread>
 
@@ -47,7 +44,7 @@ bool SystemHandle::configure(
     std::string subscription_host = configuration["subscription_host"].as<std::string>();
     uint16_t subscription_port = configuration["subscription_port"].as<uint16_t>();
 
-    fiware_connector_ = std::unique_ptr<NGSIV2Connector>(new NGSIV2Connector(host, port, subscription_host, subscription_port));
+    fiware_connector_ = std::make_unique<NGSIV2Connector>(host, port, subscription_host, subscription_port);
 
     std::cout << "[soss-fiware]: configured!" << std::endl;
     return true;
@@ -77,8 +74,7 @@ bool SystemHandle::subscribe(
     {
         std::cerr << "[soss-fiware]: error when subscribing to fiware, "
             "topic: " << topic_name << ", "
-            "type: " << message_type << " "
-            << std::endl;
+            "type: " << message_type << std::endl;
 
         return false;
     }
@@ -87,8 +83,7 @@ bool SystemHandle::subscribe(
 
     std::cout << "[soss-fiware]: subscriber created, "
         "topic: " << topic_name << ", "
-        "type: " << message_type << " "
-        << std::endl;
+        "type: " << message_type << std::endl;
 
     return true;
 }
@@ -104,8 +99,7 @@ std::shared_ptr<TopicPublisher> SystemHandle::advertise(
 
     std::cout << "[soss-fiware]: publisher created, "
         "topic: " << topic_name << ", "
-        "type: " << message_type << " "
-        << std::endl;
+        "type: " << message_type << std::endl;
 
     return publishers_.back();
 }
