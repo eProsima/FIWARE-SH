@@ -42,6 +42,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Wpedantic)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         include
+        thirdparty/asio/asio/include
     )
 
 target_link_libraries(${PROJECT_NAME}
