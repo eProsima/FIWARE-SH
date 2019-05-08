@@ -69,7 +69,7 @@ void Listener::listen()
 
         std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
 
-        StartAccept();
+        start_accept();
     }
     catch (std::exception& e)
     {
@@ -80,7 +80,7 @@ void Listener::listen()
     std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
 }
 
-void Listener::StartAccept()
+void Listener::start_accept()
 {
     socket_ = std::make_shared<asio::ip::tcp::socket>(service_);
 
@@ -114,7 +114,7 @@ void Listener::accept_handler()
 
     read_callback_(ss.str());
 
-    StartAccept();
+    start_accept();
 
     return;
 }
