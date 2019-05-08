@@ -28,10 +28,10 @@
 namespace soss {
 namespace fiware {
 
-
 class Listener {
 
     using DataReceivedCallback = std::function<void(const std::string& message)>;
+    using tcp = asio::ip::tcp;
 
 public:
     Listener(
@@ -51,22 +51,22 @@ public:
 private:
     void listen();
     void start_accept();
-    void accept_handler();
+    void accept_handler(std::shared_ptr<tcp::socket> socket);
+    void read_msg(std::shared_ptr<tcp::socket> socket);
 
     static const std::size_t BUFFER_SIZE = 8096;
 
     uint16_t port_;
 
     std::thread listen_thread_;
+    std::vector<std::thread> message_threads_;
     bool running_;
     bool errors_;
 
     DataReceivedCallback read_callback_;
     asio::io_service service_;
-    std::shared_ptr<asio::ip::tcp::socket> socket_;
-    std::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
+    std::shared_ptr<tcp::acceptor> acceptor_;
 };
-
 
 } // namespace fiware
 } // namespace soss

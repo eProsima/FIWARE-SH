@@ -55,6 +55,14 @@ void Listener::stop()
         service_.stop();
         running_ = false;
         listen_thread_.join();
+
+        for (unsigned int i = 0; i < message_threads_.size(); ++i)
+        {
+            if (message_threads_[i].joinable())
+            {
+                message_threads_.at(i).join();
+            }
+        }
     }
 }
 
@@ -82,21 +90,29 @@ void Listener::listen()
 
 void Listener::start_accept()
 {
-    socket_ = std::make_shared<asio::ip::tcp::socket>(service_);
+    std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
-    acceptor_->async_accept(*socket_, std::bind(&Listener::accept_handler, this));
+    acceptor_->async_accept(*socket, std::bind(&Listener::accept_handler, this, socket));
     service_.run();
 
     return;
 }
 
 
-void Listener::accept_handler()
+void Listener::accept_handler(std::shared_ptr<tcp::socket> socket)
+{
+    message_threads_.push_back(std::thread(&Listener::read_msg, this, socket));
+    start_accept();
+
+    return;
+}
+
+void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
 {
     asio::error_code error;
     std::array<char, BUFFER_SIZE> buffer;
     std::stringstream ss;
-    std::size_t length = socket_->read_some(asio::buffer(buffer, BUFFER_SIZE), error);
+    std::size_t length = socket->read_some(asio::buffer(buffer, BUFFER_SIZE), error);
     ss.write(buffer.data(), static_cast<std::streamsize>(length));
 
     //Connection problem
@@ -113,8 +129,6 @@ void Listener::accept_handler()
     }
 
     read_callback_(ss.str());
-
-    start_accept();
 
     return;
 }
