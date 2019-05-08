@@ -52,9 +52,9 @@ void Listener::stop()
 {
     if(running_ && listen_thread_.joinable())
     {
+        service_.stop();
         running_ = false;
         listen_thread_.join();
-        //TODO Add a timeout to the acceptor to not blocking the thread forever here
     }
 }
 
@@ -62,41 +62,14 @@ void Listener::listen()
 {
     try
     {
-        asio::io_service service;
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port_);
-        asio::ip::tcp::acceptor acceptor(service, endpoint);
+        asio::error_code error;
 
-        std::array<char, BUFFER_SIZE> buffer;
+        acceptor_ = std::make_shared<asio::ip::tcp::acceptor>(service_, endpoint);
 
         std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
 
-        while(running_)
-        {
-            asio::error_code error;
-            asio::ip::tcp::socket socket(service);
-            acceptor.accept(socket);
-
-            std::cout << "[soss-fiware][listener]: message from: "
-                << socket.remote_endpoint().address().to_string() << std::endl;
-
-            std::stringstream ss;
-            std::size_t length = socket.read_some(asio::buffer(buffer, BUFFER_SIZE), error);
-            ss.write(buffer.data(), length);
-
-            //Connection problem
-            if (error && asio::error::eof != error)
-            {
-                throw asio::system_error(error);
-            }
-
-            //Problem with this socket
-            if (0 == length || asio::error::eof == error)
-            {
-                break;
-            }
-
-            read_callback_(ss.str());
-        }
+        StartAccept();
     }
     catch (std::exception& e)
     {
@@ -107,6 +80,44 @@ void Listener::listen()
     std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
 }
 
+void Listener::StartAccept()
+{
+    socket_ = std::make_shared<asio::ip::tcp::socket>(service_);
+
+    acceptor_->async_accept(*socket_, std::bind(&Listener::accept_handler, this));
+    service_.run();
+
+    return;
+}
+
+
+void Listener::accept_handler()
+{
+    asio::error_code error;
+    std::array<char, BUFFER_SIZE> buffer;
+    std::stringstream ss;
+    std::size_t length = socket_->read_some(asio::buffer(buffer, BUFFER_SIZE), error);
+    ss.write(buffer.data(), static_cast<std::streamsize>(length));
+
+    //Connection problem
+    if (error && asio::error::eof != error)
+    {
+        throw asio::system_error(error);
+    }
+
+    //Problem with this socket
+    if (0 == length || asio::error::eof == error)
+    {
+        std::cerr << "[soss-fiware][listener]: connection error: " << error.message() << std::endl;
+        return;
+    }
+
+    read_callback_(ss.str());
+
+    StartAccept();
+
+    return;
+}
 
 } // namespace fiware
 } // namespace soss

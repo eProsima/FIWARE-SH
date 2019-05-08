@@ -50,6 +50,8 @@ public:
 
 private:
     void listen();
+    void StartAccept();
+    void accept_handler();
 
     static const std::size_t BUFFER_SIZE = 8096;
 
@@ -59,8 +61,10 @@ private:
     bool running_;
     bool errors_;
 
-    std::string read_buffer_;
     DataReceivedCallback read_callback_;
+    asio::io_service service_;
+    std::shared_ptr<asio::ip::tcp::socket> socket_;
+    std::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
 };
 
 
