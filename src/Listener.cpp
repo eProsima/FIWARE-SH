@@ -78,6 +78,7 @@ void Listener::listen()
         std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
 
         start_accept();
+        service_.run();
     }
     catch (std::exception& e)
     {
@@ -93,7 +94,6 @@ void Listener::start_accept()
     std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
     acceptor_->async_accept(*socket, std::bind(&Listener::accept_handler, this, socket));
-    service_.run();
 
     return;
 }
