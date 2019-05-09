@@ -94,8 +94,6 @@ void Listener::start_accept()
     std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
     acceptor_->async_accept(*socket, std::bind(&Listener::accept_handler, this, socket));
-
-    return;
 }
 
 
@@ -103,8 +101,6 @@ void Listener::accept_handler(std::shared_ptr<tcp::socket> socket)
 {
     message_threads_.push_back(std::thread(&Listener::read_msg, this, socket));
     start_accept();
-
-    return;
 }
 
 void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
@@ -130,8 +126,6 @@ void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
     }
 
     read_callback_(ss.str());
-
-    return;
 }
 
 } // namespace fiware
