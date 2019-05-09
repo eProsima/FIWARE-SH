@@ -56,11 +56,11 @@ void Listener::stop()
         running_ = false;
         listen_thread_.join();
 
-        for (unsigned int i = 0; i < message_threads_.size(); ++i)
+        for (std::thread & th : message_threads_)
         {
-            if (message_threads_[i].joinable())
+            if (th.joinable())
             {
-                message_threads_.at(i).join();
+                th.join();
             }
         }
     }
@@ -124,6 +124,7 @@ void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
     //Problem with this socket
     if (0 == length || asio::error::eof == error)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         std::cerr << "[soss-fiware][listener]: connection error: " << error.message() << std::endl;
         return;
     }
