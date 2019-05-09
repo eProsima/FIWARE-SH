@@ -51,8 +51,8 @@ public:
 
 private:
     void listen();
-    void start_accept();
-    void accept_handler(std::shared_ptr<tcp::socket> socket);
+    void start_accept(tcp::acceptor& acceptor);
+    void accept_handler(std::shared_ptr<tcp::socket> socket,tcp::acceptor& acceptor);
     void read_msg(std::shared_ptr<tcp::socket> socket);
 
     static const std::size_t BUFFER_SIZE = 8096;
@@ -66,7 +66,6 @@ private:
 
     DataReceivedCallback read_callback_;
     asio::io_service service_;
-    std::unique_ptr<tcp::acceptor> acceptor_;
 
     std::mutex mutex_;
 };

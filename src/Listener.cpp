@@ -72,12 +72,11 @@ void Listener::listen()
     {
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port_);
         asio::error_code error;
-
-        acceptor_ = std::make_unique<asio::ip::tcp::acceptor>(service_, endpoint);
+        tcp::acceptor acceptor(service_, endpoint);
 
         std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
 
-        start_accept();
+        start_accept(acceptor);
         service_.run();
     }
     catch (std::exception& e)
@@ -89,18 +88,20 @@ void Listener::listen()
     std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
 }
 
-void Listener::start_accept()
+void Listener::start_accept(tcp::acceptor& acceptor)
 {
     std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
-    acceptor_->async_accept(*socket, std::bind(&Listener::accept_handler, this, socket));
+    acceptor.async_accept(*socket, std::bind(&Listener::accept_handler, this, socket, std::ref(acceptor)));
 }
 
 
-void Listener::accept_handler(std::shared_ptr<tcp::socket> socket)
+void Listener::accept_handler(
+        std::shared_ptr<tcp::socket> socket,
+        tcp::acceptor& acceptor)
 {
     message_threads_.push_back(std::thread(&Listener::read_msg, this, socket));
-    start_accept();
+    start_accept(acceptor);
 }
 
 void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
