@@ -47,6 +47,7 @@ NGSIV2Connector::NGSIV2Connector(
 
 std::string NGSIV2Connector::register_subscription(
         const std::string& entity,
+        const std::string& type,
         FiwareSubscriptionCallback callback)
 {
     if (subscription_callbacks_.empty() && !listener_.is_running())
@@ -59,6 +60,7 @@ std::string NGSIV2Connector::register_subscription(
 
     Json subscription_entity;
     subscription_entity["id"] = entity;
+    subscription_entity["type"] = type;
 
     Json manifest;
     manifest["subject"]["entities"] = { subscription_entity };

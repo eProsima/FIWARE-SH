@@ -46,6 +46,7 @@ public:
 
     std::string register_subscription(
             const std::string& entity,
+            const std::string& type,
             FiwareSubscriptionCallback callback);
 
     bool unregister_subscription(

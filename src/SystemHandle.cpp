@@ -68,7 +68,16 @@ bool SystemHandle::subscribe(
     SubscriptionCallback callback,
     const YAML::Node& /*configuration*/)
 {
-    auto subscriber = std::make_shared<Subscriber>(fiware_connector_.get(), topic_name, message_type, callback);
+    // This part patches the problem of FIWARE types, which do not admit '/' in their type name.
+    std::string type = message_type;
+
+    for(size_t i = type.find('/'); i != std::string::npos; i = type.find('/', i))
+    {
+        type.replace(i, 1, "__");
+    }
+
+    auto subscriber = std::make_shared<Subscriber>(
+        fiware_connector_.get(), topic_name, type, callback);
 
     if (!subscriber->subscribe())
     {

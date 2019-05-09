@@ -51,7 +51,8 @@ bool Subscriber::subscribe()
 {
     using namespace std::placeholders;
 
-    subscription_id_ = fiware_connector_->register_subscription(topic_name_, std::bind(&Subscriber::receive, this, _1));
+    subscription_id_ = fiware_connector_->register_subscription(
+                topic_name_, message_type_, std::bind(&Subscriber::receive, this, _1));
     return !subscription_id_.empty();
 }
 
