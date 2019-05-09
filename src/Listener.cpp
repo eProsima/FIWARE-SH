@@ -73,7 +73,7 @@ void Listener::listen()
         asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port_);
         asio::error_code error;
 
-        acceptor_ = std::make_shared<asio::ip::tcp::acceptor>(service_, endpoint);
+        acceptor_ = std::make_unique<asio::ip::tcp::acceptor>(service_, endpoint);
 
         std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
 
