@@ -24,6 +24,23 @@
 namespace soss {
 namespace fiware{
 
+namespace {
+
+// This function patches the problem of FIWARE types, which do not admit '/' in their type name.
+std::string transform_type(const std::string& message_type)
+{
+    std::string type = message_type;
+
+    for(size_t i = type.find('/'); i != std::string::npos; i = type.find('/', i))
+    {
+        type.replace(i, 1, "__");
+    }
+
+    return type;
+}
+
+}
+
 SystemHandle::~SystemHandle() = default;
 
 bool SystemHandle::configure(
@@ -60,19 +77,6 @@ bool SystemHandle::spin_once()
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(100ms);
     return okay();
-}
-
-// This function patches the problem of FIWARE types, which do not admit '/' in their type name.
-std::string transform_type(const std::string& message_type)
-{
-    std::string type = message_type;
-
-    for(size_t i = type.find('/'); i != std::string::npos; i = type.find('/', i))
-    {
-        type.replace(i, 1, "__");
-    }
-
-    return type;
 }
 
 bool SystemHandle::subscribe(
