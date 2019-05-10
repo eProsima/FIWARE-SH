@@ -130,9 +130,11 @@ bool NGSIV2Connector::unregister_subscription(
 
 bool NGSIV2Connector::update_entity(
         const std::string& entity,
+        const std::string& type,
         const Json& json_message)
 {
-    std::string response = request("PUT", false, "entities/" + entity + "/attrs", json_message);
+    std::string urn = "entities/" + entity + "/attrs?type=" + type;
+    std::string response = request("PUT", false, urn, json_message);
 
     if (!response.empty())
     {

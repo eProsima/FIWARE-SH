@@ -55,6 +55,7 @@ public:
 
     bool update_entity(
             const std::string& entity,
+            const std::string& type,
             const Json& json_message);
 
     const std::string& get_host() const { return host_; }

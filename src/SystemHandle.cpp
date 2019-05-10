@@ -62,13 +62,9 @@ bool SystemHandle::spin_once()
     return okay();
 }
 
-bool SystemHandle::subscribe(
-    const std::string& topic_name,
-    const std::string& message_type,
-    SubscriptionCallback callback,
-    const YAML::Node& /*configuration*/)
+// This function patches the problem of FIWARE types, which do not admit '/' in their type name.
+std::string transform_type(const std::string& message_type)
 {
-    // This part patches the problem of FIWARE types, which do not admit '/' in their type name.
     std::string type = message_type;
 
     for(size_t i = type.find('/'); i != std::string::npos; i = type.find('/', i))
@@ -76,8 +72,17 @@ bool SystemHandle::subscribe(
         type.replace(i, 1, "__");
     }
 
+    return type;
+}
+
+bool SystemHandle::subscribe(
+    const std::string& topic_name,
+    const std::string& message_type,
+    SubscriptionCallback callback,
+    const YAML::Node& /*configuration*/)
+{
     auto subscriber = std::make_shared<Subscriber>(
-        fiware_connector_.get(), topic_name, type, callback);
+        fiware_connector_.get(), topic_name, transform_type(message_type), callback);
 
     if (!subscriber->subscribe())
     {
@@ -102,7 +107,7 @@ std::shared_ptr<TopicPublisher> SystemHandle::advertise(
     const std::string& message_type,
     const YAML::Node& /*configuration*/)
 {
-    auto publisher = std::make_shared<Publisher>(fiware_connector_.get(), topic_name, message_type);
+    auto publisher = std::make_shared<Publisher>(fiware_connector_.get(), topic_name, transform_type(message_type));
 
     publishers_.push_back(std::move(publisher));
 

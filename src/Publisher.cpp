@@ -44,7 +44,7 @@ bool Publisher::publish(
 
     Json fiware_message = Conversion::soss_to_fiware(soss_message);
 
-    return fiware_connector_->update_entity(topic_name_, fiware_message);
+    return fiware_connector_->update_entity(topic_name_, message_type_, fiware_message);
 }
 
 
