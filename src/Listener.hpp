@@ -52,7 +52,7 @@ public:
 private:
     void listen();
     void start_accept(tcp::acceptor& acceptor);
-    void accept_handler(std::shared_ptr<tcp::socket> socket,tcp::acceptor& acceptor);
+    void accept_handler(std::shared_ptr<tcp::socket> socket, tcp::acceptor& acceptor);
     void read_msg(std::shared_ptr<tcp::socket> socket);
 
     static const std::size_t BUFFER_SIZE = 8096;

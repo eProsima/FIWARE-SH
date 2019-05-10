@@ -24,6 +24,7 @@
 
 #include <functional>
 #include <map>
+#include <mutex>
 
 namespace soss {
 namespace fiware {
@@ -79,6 +80,7 @@ private:
     Listener listener_;
 
     std::map<std::string, FiwareSubscriptionCallback> subscription_callbacks_;
+    std::mutex subscription_mutex_;
 };
 
 

@@ -89,7 +89,10 @@ std::string NGSIV2Connector::register_subscription(
         return "";
     }
 
+    std::unique_lock<std::mutex> lock(subscription_mutex_);
     subscription_callbacks_[subscription_id] = callback;
+    lock.unlock();
+
     std::cout << "[soss-fiware][connector]: subscription registered. "
                  "ID: " << subscription_id << std::endl;
 
@@ -109,7 +112,10 @@ bool NGSIV2Connector::unregister_subscription(
         return false;
     }
 
+
+    std::unique_lock<std::mutex> lock(subscription_mutex_);
     subscription_callbacks_.erase(subscription_id);
+    lock.unlock();
 
     std::cout <<  "[soss-fiware][connector]: subscription with ID " << subscription_id <<
                   " unregistered successfully." << std::endl;
@@ -151,7 +157,7 @@ std::string NGSIV2Connector::request(
         std::stringstream url;
         url << host_ << ":" << port_ << "/v2/" << urn;
         request.setOpt(new curlpp::options::Url(url.str()));
-        //request.setOpt(new curlpp::options::Verbose(true));
+        //request.setOpt(new curlpp::options::Verbose(true)); //Enable for debugging purposes
 
         if (method != "DELETE")
         {
@@ -212,15 +218,24 @@ void NGSIV2Connector::receive(
 
     std::cout << "[soss-fiware][connector] received message from subscription ID: " << subscription_id << " - ";
 
+
+    FiwareSubscriptionCallback callback = nullptr;
+
+    std::unique_lock<std::mutex> lock(subscription_mutex_);
     auto it = subscription_callbacks_.find(subscription_id);
     if (subscription_callbacks_.end() != it)
     {
+        callback = it->second;
+    }
+    lock.unlock();
+
+    if (callback != nullptr)
+    {
         std::cout << "accepted" << std::endl;
-        it->second(topic_data);
+        callback(topic_data);
     }
     else
     {
-
         std::cout << "skipping" << std::endl;
     }
 }
