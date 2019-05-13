@@ -181,7 +181,6 @@ soss::Message Conversion::fiware_to_soss(const std::string& type, const Json& in
             {
                 std::cerr << "[soss-fiware][conversion]: Error converting from JSON - " <<
                              "Type " << it.value()["type"] << " not recognised." << std::endl;
-                std::cout << "TypeID float: " << m_fiware_types.at(typeid(float).name()) << std::endl;
                 return soss::Message{};
             }
         }
