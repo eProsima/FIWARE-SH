@@ -1,4 +1,3 @@
-# Inherit from ros2 docket
 FROM ubuntu:bionic
 
 # Dependencies
