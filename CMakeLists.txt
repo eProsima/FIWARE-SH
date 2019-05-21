@@ -17,6 +17,11 @@ cmake_minimum_required(VERSION 3.5.0)
 project(soss-fiware)
 
 find_package(soss-core REQUIRED)
+find_path(ASIO_INCLUDE_DIR NAMES asio.hpp)
+if(NOT ASIO_INCLUDE_DIR)
+    message(FATAL_ERROR "Asio not found, please install it."
+                        "\n\t(e.g.): sudo apt install libasio-dev")
+endif()
 
 add_subdirectory(thirdparty/curlpp)
 
@@ -40,7 +45,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Wpedantic)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         include
-        thirdparty/asio/asio/include
     )
 
 target_link_libraries(${PROJECT_NAME}
