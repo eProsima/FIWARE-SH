@@ -1,0 +1,11 @@
+systems:
+    fiware: { type: fiware, host: "192.168.1.59", port: 1026, subscription_host: "192.168.1.56", subscription_port: 1028}
+    mock: { type: mock }
+
+routes:
+    mock_to_fiware: { from: mock, to: fiware }
+    fiware_to_mock: { from: fiware, to: mock }
+
+topics:
+    to_mock_topic: { type: "fiware_test/to_mock", route: mock_to_fiware }
+    to_fiware_topic: { type: "fiware_test/to_fiware", route: fiware_to_mock }
