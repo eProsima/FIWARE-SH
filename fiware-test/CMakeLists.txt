@@ -29,14 +29,20 @@ add_executable(${PROJECT_NAME}
     src/integration/roundtrip.cpp
 )
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        CXX_STANDARD 14
+        POSITION_INDEPENDENT_CODE ON
+)
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Wpedantic)
-
-target_link_libraries(${PROJECT_NAME}
+target_compile_options(${PROJECT_NAME}
     PRIVATE
-        soss::mock
+        -Werror -Wall -Wextra -Wpedantic
+)
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        "FIWARE__ROUNDTRIP__TEST_CONFIG=\"${PROJECT_SOURCE_DIR}/resources/roundtrip.yaml\""
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -44,9 +50,9 @@ target_include_directories(${PROJECT_NAME}
         "${PROJECT_SOURCE_DIR}/thirdparty/catch2/include"
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        "FIWARE__ROUNDTRIP__TEST_CONFIG=\"${PROJECT_SOURCE_DIR}/resources/roundtrip.yaml\""
+        soss::mock
 )
 
 catch_discover_tests(${PROJECT_NAME})

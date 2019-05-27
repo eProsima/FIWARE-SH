@@ -7,5 +7,5 @@ routes:
     fiware_to_mock: { from: fiware, to: mock }
 
 topics:
-    to_mock_topic: { type: "fiware_test/to_mock", route: mock_to_fiware }
-    to_fiware_topic: { type: "fiware_test/to_fiware", route: fiware_to_mock }
+    mock_to_fiware_topic: { type: "fiware_test_string", route: mock_to_fiware, remap: {fiware: "fiware_mock_topic" } }
+    fiware_to_mock_topic: { type: "fiware_test_string", route: fiware_to_mock, remap: {fiware: "fiware_mock_topic" } }
