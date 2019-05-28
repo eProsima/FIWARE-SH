@@ -40,11 +40,6 @@ target_compile_options(${PROJECT_NAME}
         -Werror -Wall -Wextra -Wpedantic
 )
 
-target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
-        "FIWARE__ROUNDTRIP__TEST_CONFIG=\"${PROJECT_SOURCE_DIR}/resources/roundtrip.yaml\""
-)
-
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         "${PROJECT_SOURCE_DIR}/thirdparty/catch2/include"

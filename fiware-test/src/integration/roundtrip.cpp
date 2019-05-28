@@ -25,73 +25,117 @@
 #include <iomanip>
 #include <ctime>
 
-#define FIWARE_ADDRESS "192.168.1.59:1026" //TODO: read from yaml configuration
+#define FIWARE_IP "192.168.1.59"
+#define FIWARE_PORT "1026"
+#define FIWARE_ADDRESS FIWARE_IP ":" FIWARE_PORT
 
-const char* fiware_create_test_entity_command =
-    "curl " FIWARE_ADDRESS "/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF \n"
-    "{\n"
-    "    \"id\": \"fiware_mock_topic\",\n"
-    "    \"type\": \"fiware_test_string\",\n"
-    "    \"data\": {\n"
-    "        \"value\": \"\",\n"
-    "        \"type\": \"String\"\n"
-    "    }\n"
-    "}\n"
-    "EOF";
+#define FIWARE_SUBS_IP "192.168.1.56"
+#define FIWARE_SUBS_PORT "1028"
 
-const char* fiware_delete_test_entity_command =
-    "curl " FIWARE_ADDRESS "/v2/entities/fiware_mock_topic?type=fiware_test_string -s -S -H \
-    'Accept: application/json' -X DELETE";
+std::string gen_config_yaml(
+        const std::string& topic_type,
+        const std::string& fiware_entity,
+        const std::string& topic_sent,
+        const std::string& topic_recv)
+{
+    std::string s;
+    s += "systems:\n";
+    s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT ", \
+                    subscription_host: \"" FIWARE_SUBS_IP "\", subscription_port: " FIWARE_SUBS_PORT "}\n";
+    s += "    mock: { type: mock }\n";
 
+    s += "routes:\n";
+    s += "    mock_to_fiware: { from: mock, to: fiware }\n";
+    s += "    fiware_to_mock: { from: fiware, to: mock }\n";
 
-TEST_CASE("Transmit to and receive from fiware", "[fiware]")
+    s += "topics:\n";
+    s += "    " + topic_sent + ": { type: \"" + topic_type + "\", route: mock_to_fiware, \
+                    remap: {fiware: \"" + fiware_entity + "\" } }\n";
+    s += "    " + topic_recv + ": { type: \"" + topic_type + "\", route: fiware_to_mock, \
+                    remap: {fiware: \"" + fiware_entity + "\" } }\n";
+    return s;
+}
+
+soss::Message roundtrip(
+        const std::string& fiware_entity,
+        const std::string& topic_type,
+        const soss::Message& message)
 {
     using namespace std::chrono_literals;
 
-    REQUIRE(0 == system(fiware_create_test_entity_command));
+    const std::string topic_sent = "mock_to_fiware_topic";
+    const std::string topic_recv = "fiware_to_mock_topic";
 
-    SECTION("Publish and subscribe")
+    std::string config_yaml = gen_config_yaml(topic_type, fiware_entity, topic_sent, topic_recv);
+    const YAML::Node config_node = YAML::Load(config_yaml);
+    soss::InstanceHandle soss_handle = soss::run_instance(config_node);
+    REQUIRE(soss_handle);
+
+    std::this_thread::sleep_for(1s); //skip the first message from fiware, possibily from previous tests
+
+    soss::mock::publish_message(topic_sent, message);
+
+    std::promise<soss::Message> receive_msg_promise;
+    REQUIRE(soss::mock::subscribe(
+            topic_recv,
+            [&](const soss::Message& msg_from_fiware)
     {
-        std::cout << "[test]: configuring middleware..." << std::endl;
-        const YAML::Node config_node = YAML::LoadFile(FIWARE__ROUNDTRIP__TEST_CONFIG);
-        soss::InstanceHandle soss_handle = soss::run_instance(config_node);
-        REQUIRE(soss_handle);
+        receive_msg_promise.set_value(msg_from_fiware);
+    }));
 
-        std::this_thread::sleep_for(1s); //skip the first message from fiware, possibily from previous tests
-        std::cout << "[test]: preparing communication..." << std::endl;
+    auto receive_msg_future = receive_msg_promise.get_future();
+    REQUIRE(std::future_status::ready == receive_msg_future.wait_for(5s));
 
-        // Generating message
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::stringstream ss;
-        ss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
-        std::string message_data = "mock test message at " + ss.str();
-        std::cout << "[test]: message id: " << ss.str() << std::endl;
+    return receive_msg_future.get();
+}
 
-        // Message to fiware
-        soss::Message msg_to_fiware;
-        msg_to_fiware.type = "fiware_test_string";
-        msg_to_fiware.data["data"] = soss::Convert<std::string>::make_soss_field(message_data);
-        soss::mock::publish_message("mock_to_fiware_topic", msg_to_fiware);
+TEST_CASE("Transmit to and receive from fiware", "[fiware]")
+{
+    SECTION("basic-type")
+    {
+        const std::string fiware_entity = "fiware_mock_test_basic";
+        const std::string topic_type = "fiware_test_string";
 
-        // Message from fiware
-        std::promise<soss::Message> receive_msg_promise;
-        REQUIRE(soss::mock::subscribe(
-                "fiware_to_mock_topic",
-                [&](const soss::Message& msg_from_fiware)
+        const std::string create_entity_command =
+            "curl " FIWARE_ADDRESS "/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF \n"
+            "{\n"
+            "    \"id\": \"" + fiware_entity + "\",\n"
+            "    \"type\": \"" + topic_type + "\",\n"
+            "    \"data\": {\n"
+            "        \"value\": \"\",\n"
+            "        \"type\": \"String\"\n"
+            "    }\n"
+            "}\n"
+            "EOF";
+
+        REQUIRE(0 == system(create_entity_command.c_str()));
+
+        SECTION("roundtrip")
         {
-            receive_msg_promise.set_value(msg_from_fiware);
-        }));
+            auto t = std::time(nullptr);
+            auto tm = *std::localtime(&t);
+            std::stringstream ss;
+            ss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+            std::string message_data = "mock test message at " + ss.str();
+            std::cout << "[test]: message id: " << ss.str() << std::endl;
 
-        auto receive_msg_future = receive_msg_promise.get_future();
-        REQUIRE(std::future_status::ready == receive_msg_future.wait_for(5s));
+            soss::Message msg_to_fiware;
+            msg_to_fiware.type = topic_type;
+            msg_to_fiware.data["data"] = soss::Convert<std::string>::make_soss_field(message_data);
 
-        const soss::Message msg_from_fiware = receive_msg_future.get();
-        REQUIRE(message_data == *msg_from_fiware.data.at("data").cast<std::string>());
-        REQUIRE(msg_to_fiware.type == msg_from_fiware.type);
+            soss::Message msg_from_fiware = roundtrip(
+                    fiware_entity,
+                    topic_type,
+                    msg_to_fiware);
 
-        std::cout << "[test]: Finishing commuinication..." << std::endl;
+            REQUIRE(message_data == *msg_from_fiware.data.at("data").cast<std::string>());
+            REQUIRE(msg_to_fiware.type == msg_from_fiware.type);
+        }
+
+        const std::string delete_entity_command =
+            "curl " FIWARE_ADDRESS "/v2/entities/" + fiware_entity + "?type=" + topic_type + " -s -S -H \
+            'Accept: application/json' -X DELETE";
+
+        REQUIRE(0 == system(delete_entity_command.c_str()));
     }
-
-    REQUIRE(0 == system(fiware_delete_test_entity_command));
 }
