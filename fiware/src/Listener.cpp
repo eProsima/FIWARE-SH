@@ -56,7 +56,7 @@ void Listener::stop()
         running_ = false;
         listen_thread_.join();
 
-        for (std::thread & th : message_threads_)
+        for (std::thread& th: message_threads_)
         {
             if (th.joinable())
             {
