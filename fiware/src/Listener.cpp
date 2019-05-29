@@ -106,27 +106,22 @@ void Listener::accept_handler(
 
 void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
 {
-    asio::error_code error;
-    std::array<char, BUFFER_SIZE> buffer;
-    std::stringstream ss;
-    std::size_t length = socket->read_some(asio::buffer(buffer, BUFFER_SIZE), error);
-    ss.write(buffer.data(), static_cast<std::streamsize>(length));
-
-    //Connection problem
-    if (error && asio::error::eof != error)
+    try
     {
-        throw asio::system_error(error);
-    }
+        //wait for some data
+        socket->read_some(asio::null_buffers());
 
-    //Problem with this socket
-    if (0 == length || asio::error::eof == error)
+        std::string message;
+        message.resize(socket->available());
+
+        socket->read_some(asio::buffer(&message[0], message.size()));
+
+        read_callback_(message);
+    }
+    catch (std::exception& e)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
-        std::cerr << "[soss-fiware][listener]: connection error: " << error.message() << std::endl;
-        return;
+        std::cerr << "[soss-fiware][listener]: connection error at read thread: " << e.what() << std::endl;
     }
-
-    read_callback_(ss.str());
 }
 
 } // namespace fiware

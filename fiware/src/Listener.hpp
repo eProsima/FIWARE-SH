@@ -24,7 +24,6 @@
 #include <thread>
 
 #include <iostream>
-#include <mutex>
 
 namespace soss {
 namespace fiware {
@@ -66,8 +65,6 @@ private:
 
     DataReceivedCallback read_callback_;
     asio::io_service service_;
-
-    std::mutex mutex_;
 };
 
 } // namespace fiware

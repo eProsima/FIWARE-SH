@@ -63,7 +63,10 @@ void Subscriber::receive(const Json& fiware_message)
 
     soss::Message soss_message = Conversion::fiware_to_soss(message_type_, fiware_message);
 
-    soss_callback_(soss_message);
+    if(!soss_message.type.empty())
+    {
+        soss_callback_(soss_message);
+    }
 }
 
 
