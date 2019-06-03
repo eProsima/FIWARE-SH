@@ -1,0 +1,48 @@
+FROM ubuntu:bionic
+
+# Dependencies
+RUN apt-get install -f
+RUN apt-get update
+
+RUN apt-get install -y lsb-release
+RUN apt-get install -y gnupg2
+
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN echo "deb http://packages.ros.org/ros2/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros2-latest.list
+RUN apt-get update
+
+RUN apt-get install -y libyaml-cpp-dev
+RUN apt-get install -y libboost-program-options-dev
+RUN apt-get install -y python3
+RUN apt-get install -y python3-colcon-common-extensions
+
+# Install ros2
+RUN apt-get install -y ros-crystal-desktop
+RUN apt-get install -y ros-crystal-test-msgs
+RUN chmod +x ./opt/ros/crystal/setup.sh
+
+# Prepare soss
+RUN mkdir -p root/soss_wp/src/osrf
+COPY ./src root/soss_wp/src/osrf
+WORKDIR root/soss_wp
+RUN apt-get install -y libasio-dev    #Required for fiware
+RUN apt-get install -y libcurlpp-dev #Required for fiware
+
+# Compile soss
+RUN . /opt/ros/crystal/setup.sh && \
+    colcon build --packages-up-to soss-ros2-test --cmake-args -DCMAKE_BUILD_TYPE=RELEASE --install-base /opt/soss
+
+# Prepare environment with fiware
+WORKDIR /root
+RUN rm -rf soss_wp
+RUN mkdir -p my_wp/src
+WORKDIR /root/my_wp
+COPY ./src/eprosima/soss/fiware src/fiware
+
+ENTRYPOINT . /opt/soss/setup.sh && \
+    echo "[NOTE]: As an example, the docker comes with a colcon workspace with fiware " && \
+    echo "[STEP] 1: Source soss project: '. /opt/soss/setup.bash'" && \
+    echo "[STEP] 2: Compile the project: 'colcon build'" && \
+    echo "[STEP] 3: Source fiware project: '. install/local_setup.bash'" && \
+    echo "[STEP] 4: Run the test: 'soss src/fiware/fiware/sample/hello_fiware_ros2.yaml'" && \
+    bash
