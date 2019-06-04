@@ -29,7 +29,6 @@
 #define FIWARE_PORT "1026"
 #define FIWARE_ADDRESS FIWARE_IP ":" FIWARE_PORT
 
-#define FIWARE_SUBS_IP "192.168.1.56"
 #define FIWARE_SUBS_PORT "1028"
 
 std::string gen_config_yaml(
@@ -40,8 +39,7 @@ std::string gen_config_yaml(
 {
     std::string s;
     s += "systems:\n";
-    s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT ", \
-                    subscription_host: \"" FIWARE_SUBS_IP "\", subscription_port: " FIWARE_SUBS_PORT "}\n";
+    s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT ", subscription_port: " FIWARE_SUBS_PORT "}\n";
     s += "    mock: { type: mock }\n";
 
     s += "routes:\n";

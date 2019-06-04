@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <thread>
+#include <asio.hpp>
 
 namespace soss {
 namespace fiware{
@@ -39,7 +40,23 @@ std::string transform_type(const std::string& message_type)
     return type;
 }
 
+std::string my_local_ip_from(const std::string& host, uint16_t port)
+{
+    try
+    {
+        asio::io_service service;
+        asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(host), port);
+        asio::ip::tcp::socket socket(service);
+        socket.connect(endpoint);
+        return socket.local_endpoint().address().to_string();
+    }
+    catch (std::exception&)
+    {
+        return "";
+    }
 }
+
+} //namespace
 
 SystemHandle::~SystemHandle() = default;
 
@@ -49,7 +66,6 @@ bool SystemHandle::configure(
 {
     if (!configuration["host"] ||
         !configuration["port"] ||
-        !configuration["subscription_host"] ||
         !configuration["subscription_port"])
     {
         std::cerr << "[soss-fiware]: configuration must have the host and port and the subscription port." << std::endl;
@@ -58,8 +74,23 @@ bool SystemHandle::configure(
 
     std::string host = configuration["host"].as<std::string>();
     uint16_t port = configuration["port"].as<uint16_t>();
-    std::string subscription_host = configuration["subscription_host"].as<std::string>();
     uint16_t subscription_port = configuration["subscription_port"].as<uint16_t>();
+
+    std::string subscription_host;
+    if (configuration["subscription_host"])
+    {
+        subscription_host = configuration["subscription_host"].as<std::string>();
+    }
+    else
+    {
+        subscription_host = my_local_ip_from(host, port);
+        if (host.empty())
+        {
+            std::cerr << "[soss-fiware]: Error getting the local ip addres from "
+                << host << ":" << port << std::endl;
+            return false;
+        }
+    }
 
     fiware_connector_ = std::make_unique<NGSIV2Connector>(host, port, subscription_host, subscription_port);
 
