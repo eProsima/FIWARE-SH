@@ -78,6 +78,7 @@ private:
     uint16_t port_;
 
     std::string listener_host_;
+    uint16_t listener_port_;
     Listener listener_;
 
     std::map<std::string, FiwareSubscriptionCallback> subscription_callbacks_;

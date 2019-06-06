@@ -25,11 +25,9 @@
 #include <iomanip>
 #include <ctime>
 
-#define FIWARE_IP "192.168.1.59"
-#define FIWARE_PORT "1026"
+#define FIWARE_IP      FIWARE__IP__TEST_CONFIG
+#define FIWARE_PORT    FIWARE__PORT__TEST_CONFIG
 #define FIWARE_ADDRESS FIWARE_IP ":" FIWARE_PORT
-
-#define FIWARE_SUBS_PORT "1028"
 
 std::string gen_config_yaml(
         const std::string& topic_type,
@@ -39,7 +37,7 @@ std::string gen_config_yaml(
 {
     std::string s;
     s += "systems:\n";
-    s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT ", subscription_port: " FIWARE_SUBS_PORT "}\n";
+    s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT "}\n";
     s += "    mock: { type: mock }\n";
 
     s += "routes:\n";

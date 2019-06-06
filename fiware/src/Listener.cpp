@@ -18,16 +18,40 @@
 #include "Listener.hpp"
 
 #include <iostream>
+#include <mutex>
+#include <condition_variable>
 
 namespace soss {
 namespace fiware {
 
 
-Listener::Listener(
-        uint16_t port,
-        DataReceivedCallback callback)
+class SyncPort
+{
+private:
+    uint16_t port = 0;
+    std::mutex m;
+    std::condition_variable cv;
 
-    : port_{port}
+public:
+    void set(uint16_t port)
+    {
+        std::unique_lock<std::mutex> lock(m);
+        this->port = port;
+        cv.notify_one();
+    }
+    uint16_t get()
+    {
+        std::unique_lock<std::mutex> lock(m);
+        cv.wait(lock, [&](){ return port != 0; });
+        return port;
+    }
+};
+
+
+Listener::Listener(
+        uint16_t desired_port,
+        DataReceivedCallback callback)
+    : desired_port_{desired_port}
     , listen_thread_{}
     , running_{false}
     , errors_{false}
@@ -40,12 +64,13 @@ Listener::~Listener()
     stop();
 }
 
-void Listener::run()
+uint16_t Listener::run()
 {
-    listen_thread_ = std::thread(&Listener::listen, this);
+    SyncPort listening_port;
+    listen_thread_ = std::thread(&Listener::listen, this, std::ref(listening_port));
     running_ = true;
 
-    //TODO: should wait until the port was open, use a condition variable?
+    return listening_port.get();
 }
 
 void Listener::stop()
@@ -66,15 +91,18 @@ void Listener::stop()
     }
 }
 
-void Listener::listen()
+void Listener::listen(
+        SyncPort& listening_port)
 {
     try
     {
-        asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port_);
+        asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), desired_port_);
         asio::error_code error;
         tcp::acceptor acceptor(service_, endpoint);
+        uint16_t port = acceptor.local_endpoint().port();
+        listening_port.set(port);
 
-        std::cout << "[soss-fiware][listener]: listening fiware at port " << port_ << std::endl;
+        std::cout << "[soss-fiware][listener]: listening fiware at port " << port << std::endl;
 
         start_accept(acceptor);
         service_.run();
@@ -88,7 +116,8 @@ void Listener::listen()
     std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
 }
 
-void Listener::start_accept(tcp::acceptor& acceptor)
+void Listener::start_accept(
+        tcp::acceptor& acceptor)
 {
     std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
@@ -104,7 +133,8 @@ void Listener::accept_handler(
     start_accept(acceptor);
 }
 
-void Listener::read_msg(std::shared_ptr<tcp::socket> socket)
+void Listener::read_msg(
+        std::shared_ptr<tcp::socket> socket)
 {
     try
     {

@@ -25,9 +25,11 @@
 
 #include <iostream>
 
+
 namespace soss {
 namespace fiware {
 
+class SyncPort;
 class Listener {
 
     using DataReceivedCallback = std::function<void(const std::string& message)>;
@@ -35,28 +37,33 @@ class Listener {
 
 public:
     Listener(
-            uint16_t port,
+            uint16_t desired_port,
             DataReceivedCallback callback);
 
     virtual ~Listener();
 
-    void run();
+    uint16_t run();
     void stop();
-
-    uint16_t get_port() const { return port_; }
 
     bool is_running() const { return running_; }
     bool has_errors() const { return errors_; }
 
 private:
-    void listen();
-    void start_accept(tcp::acceptor& acceptor);
-    void accept_handler(std::shared_ptr<tcp::socket> socket, tcp::acceptor& acceptor);
-    void read_msg(std::shared_ptr<tcp::socket> socket);
+    void listen(
+            SyncPort& listening_port);
 
-    static const std::size_t BUFFER_SIZE = 8096;
+    void start_accept(
+            tcp::acceptor& acceptor);
 
-    uint16_t port_;
+    void accept_handler(
+            std::shared_ptr<tcp::socket> socket,
+            tcp::acceptor& acceptor);
+
+    void read_msg(
+            std::shared_ptr<tcp::socket> socket);
+
+
+    uint16_t desired_port_;
 
     std::thread listen_thread_;
     std::vector<std::thread> message_threads_;
@@ -64,7 +71,9 @@ private:
     bool errors_;
 
     DataReceivedCallback read_callback_;
+
     asio::io_service service_;
+
 };
 
 } // namespace fiware

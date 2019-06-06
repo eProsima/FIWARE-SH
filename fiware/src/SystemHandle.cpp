@@ -65,16 +65,20 @@ bool SystemHandle::configure(
     const YAML::Node& configuration)
 {
     if (!configuration["host"] ||
-        !configuration["port"] ||
-        !configuration["subscription_port"])
+        !configuration["port"])
     {
-        std::cerr << "[soss-fiware]: configuration must have the host and port and the subscription port." << std::endl;
+        std::cerr << "[soss-fiware]: configuration must have the fiware context broker host and port." << std::endl;
         return false;
     }
 
     std::string host = configuration["host"].as<std::string>();
     uint16_t port = configuration["port"].as<uint16_t>();
-    uint16_t subscription_port = configuration["subscription_port"].as<uint16_t>();
+
+    uint16_t subscription_port = 0;
+    if (configuration["subscription_port"])
+    {
+        subscription_port = configuration["subscription_port"].as<uint16_t>();
+    }
 
     std::string subscription_host;
     if (configuration["subscription_host"])
@@ -84,7 +88,7 @@ bool SystemHandle::configure(
     else
     {
         subscription_host = my_local_ip_from(host, port);
-        if (host.empty())
+        if (subscription_host.empty())
         {
             std::cerr << "[soss-fiware]: Error getting the local ip addres from "
                 << host << ":" << port << std::endl;

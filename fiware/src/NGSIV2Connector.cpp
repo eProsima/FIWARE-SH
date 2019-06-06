@@ -40,6 +40,7 @@ NGSIV2Connector::NGSIV2Connector(
     : host_{remote_host}
     , port_{remote_port}
     , listener_host_{listener_host}
+    , listener_port_{listener_port}
     , listener_{listener_port, std::bind(&NGSIV2Connector::receive, this, _1)}
     , subscription_callbacks_{}
 {
@@ -52,11 +53,11 @@ std::string NGSIV2Connector::register_subscription(
 {
     if (subscription_callbacks_.empty() && !listener_.is_running())
     {
-        listener_.run();
+        listener_port_ = listener_.run();
     }
 
     std::stringstream url;
-    url << "http://" << listener_host_ << ":" << listener_.get_port();
+    url << "http://" << listener_host_ << ":" << listener_port_;
 
     Json subscription_entity;
     subscription_entity["id"] = entity;

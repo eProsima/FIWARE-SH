@@ -24,6 +24,7 @@ find_package(soss-mock REQUIRED)
 include(CTest)
 include(${PROJECT_SOURCE_DIR}/thirdparty/catch2/cmake/Catch.cmake)
 
+
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/integration/roundtrip.cpp
@@ -48,6 +49,12 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         soss::mock
+)
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        "FIWARE__IP__TEST_CONFIG=\"192.168.1.59\""
+        "FIWARE__PORT__TEST_CONFIG=\"1026\""
 )
 
 catch_discover_tests(${PROJECT_NAME})
