@@ -7,6 +7,7 @@ participant Subscriber
 participant Conversion
 participant Connector
 participant Listener
+entity fiware
 
 == initialization ==
 core -> SystemHandle: configure
@@ -31,8 +32,11 @@ Subscriber -> Connector: register_subscription()
 activate Connector
 Connector -> Listener: run()
 activate Listener
+activate Listener
+Connector <-- Listener: status
+deactivate Listener
 Listener -> Listener: listen()
-Connector -> Connector: request()
+Connector -[#0000FF]> fiware: send_request()
 Subscriber <-- Connector: status
 deactivate Connector
 SystemHandle <-- Subscriber: status
@@ -58,13 +62,15 @@ Publisher <-- Conversion: fiware_topic
 deactivate Conversion
 Publisher -> Connector: update_entity()
 activate Connector
-Connector -> Connector: request()
+Connector -[#0000FF]> fiware: send_request()
 Publisher <-- Connector: status
 deactivate Connector
 other_sh <-- Publisher: status
 deactivate Publisher
 
 == from fiware ==
+fiware -[#0000FF]> Listener: recv_request()
+activate Listener
 Listener -> Connector: receive_cb()
 activate Connector
 Connector -> Subscriber: receive_cb()
@@ -78,16 +84,23 @@ Connector <-- Subscriber: ok
 deactivate Subscriber
 Listener <-- Connector: ok
 deactivate Connector
+deactivate Listener
 
 == destruction ==
+core -> SystemHandle: __destroy__()
+activate SystemHandle
 SystemHandle -> Subscriber: __destroy__()
 activate Subscriber
 Subscriber -> Connector: unregister_subscription()
 activate Connector
-Connector -> Connector: request()
-Subscriber <-- Connector: status
+Connector -[#0000FF]> fiware: send_request()
+Connector -> Listener: stop()
+activate Listener
+Connector <-- Listener: status
+deactivate Listener
+deactivate Listener
 deactivate Connector
 deactivate Subscriber
-deactivate Listener
+deactivate SystemHandle
 
 @enduml
