@@ -28,7 +28,7 @@ Installation
 
 Usage
 =====
-This system handle can be used to connnevt FIWARE with other systems.
+This system handle can be used to connect FIWARE with other systems.
 
 Configuration
 -------------
@@ -53,7 +53,7 @@ To see how general SOSS systems, users and topics are configured, please refer t
 
 For the FIWARE system handle, the user must give two extra YAML pairs which are the host and port in which this system handle will try to connect to an instance of FIWARE's Orion context broker. Also, there are two optional parameters which are subscription_host and subscription_port. If those are specified, the system handle will create a subscription in the context broker pointing to that host and port. If not given, the host and port will be auto generated to connect directly with the system handle.
 
-FIWARE does not allow certain characters in its entities names. For this reason, if a type defined in the topics section of the configuration file has in its name a `/`, the FIWARE system handle will map that character into two underscores. That's why the type inside the dynamic types map is std_msgs__String, while the type inside the topics section is std_msgs/String. This is something important to notice when connecting to ROS2, because in ROS2 most of the types have a `/` in their names. Also, notice that in FIWARE the type will be published as an entity with the same name but with every slash substituted with two underscores.
+FIWARE does not allow certain characters in its entities names. For this reason, if a type defined in the topics section of the configuration file has in its name a `/`, the FIWARE system handle will map that character into two underscores. This is something important to notice when connecting to ROS2, because in ROS2 most of the types have a `/` in their names. Also, notice that in FIWARE the type will be published as an entity with the same name but with every slash substituted with two underscores.
 
 Notice that this system handle maps soss messages dyrectly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
 
