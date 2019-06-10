@@ -1,35 +1,70 @@
-# soss-fiware plugin
-System handle to connect fiware to *soss*.
+soss-fiware
+===========
 
-## Installation
+System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
+
+Installation
+============
 0. Prerequisites: curlpp and asio installed
-1. Create a colcon workspace
-2. Clone the soss project into the colcon workspace (tag: `eprosima_usage`)
-3. Clone the soss-fiware plugin into the colcon workspace.
-For example:
+1. Create a colcon workspace (create a folder for the workspace and a subfolder for the sources).
+2. Clone the soss project into the subfolder (tag: `master`).
+3. Clone this project into the subfolder (with `--recursive` option).
+4. Clone the soss-ros2 plugin into the subfolder. <!-- ToDo: Add link to soss-ros2 -->:
+
+    The workspace layout should look like this:
+    ```
+        soss_wp
+        └── src
+            ├── soss
+            |   └── ... (soss project subfolders)
+            ├── soss-ros2 (repo)
+            └── soss-fiware (repo)
+                    ├── fiware (soss-fiware colcon pkg)
+                    └── fiware-test (soss-fiware-test colcon pkg)
+    ```
+
+5. In the workspace folder, execute colcon: `colcon build --packages-up-to soss-dds`.
+6. Source the current environment: `source install/local_setup.bash`.
+
+Usage
+=====
+This system handle can be used to connnevt FIWARE with other systems.
+
+Configuration
+-------------
+SOSS must be configured with a YAML file, which tells the program everything it needs to know in order to establish the connection between two or more systems that the user wants. 
+For example, if a simple string message wants to be exchanged between FIWARE and ROS2, the configuration file for SOSS should look as follows.
+
+```YAML
+systems:
+    ros2: { type: ros2 }
+    fiware: { type: fiware, host: "192.168.1.59", port: 1026}
+
+routes:
+    fiware_to_ros2: { from: fiware, to: ros2 }
+    ros2_to_fiware: { from: ros2, to: fiware }
+
+topics:
+    hello_fiware: { type: "std_msgs/String", route: ros2_to_fiware }
+    hello_ros2: { type: "std_msgs/String", route: fiware_to_ros2 }
 ```
-soss_wp
-└── src
-    ├── osrf
-    │   └── soss
-    │       └── ... (soss project subfolders)
-    └── eprosima
-        └── soss
-            └── fiware (repo)
-                ├── fiware (soss-fiware colcon pkg)
-                └── fiware-test (soss-fiware-test colcon pkg)
-```
-4. Execute colcon: `colcon build --packages-up-to soss-fiware`
-5. source soss environment: `source install/local_setup.bash`
+
+To see how general SOSS systems, users and topics are configured, please refer to SOSS' documentation.
+
+For the FIWARE system handle, the user must give two extra YAML pairs which are the host and port in which this system handle will try to connect to an instance of FIWARE's Orion context broker. Also, there are two optional parameters which are subscription_host and subscription_port. If those are specified, the system handle will create a subscription in the context broker pointing to that host and port. If not given, the host and port will be auto generated to connect directly with the system handle.
+
+FIWARE does not allow certain characters in its entities names. For this reason, if a type defined in the topics section of the configuration file has in its name a `/`, the FIWARE system handle will map that character into two underscores. That's why the type inside the dynamic types map is std_msgs__String, while the type inside the topics section is std_msgs/String. This is something important to notice when connecting to ROS2, because in ROS2 most of the types have a `/` in their names. Also, notice that in FIWARE the type will be published as an entity with the same name but with every slash substituted with two underscores.
+
+Notice that this system handle maps soss messages dyrectly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
 
 ## Run soss (with ros2)
 0. Source the ros2 environment and compile with `--packages-up-to soss-ros2-test`
-1. Run soss (with the sample configuration): `soss sample/hello_fiware_ros2.yaml`
+1. Run soss (with the sample configuration): `soss src/fiware/fiware/sample/hello_fiware_ros2.yaml`
 
 - For more information, you can see the [demo steps](fiware/sample/demo.md),
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
 - Also, you can have a look to the [internal design](fiware/doc/design.md)
-- For a fast configuration, you can use the [dockerfiles](fiware/dockerfiles)
+- For a fast configuration, you can use the [dockerfile](Dockerfile)
 
 ## Changelog
 ### v0.1.2
@@ -62,3 +97,7 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020  
 research and innovation programme under grant agreement no. 732287. 
+
+
+ [soss]: https://github.com/osrf/soss
+ [fiware]: https://www.fiware.org/
