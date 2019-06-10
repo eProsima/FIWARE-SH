@@ -1,8 +1,8 @@
-#soss-fiware
+# soss-fiware
 
 System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 
-#Installation
+## Installation
 
 0. Prerequisites: curlpp and asio installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
@@ -25,11 +25,11 @@ System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 5. In the workspace folder, execute colcon: `colcon build --packages-up-to soss-fiware`.
 6. Source the current environment: `source install/local_setup.bash`.
 
-#Usage
+## Usage
 
 This system handle can be used to connect FIWARE with other systems.
 
-##Configuration
+### Configuration
 
 SOSS must be configured with a YAML file, which tells the program everything it needs to know in order to establish the connection between two or more systems that the user wants. 
 For example, if a simple string message wants to be exchanged between FIWARE and ROS2, the configuration file for SOSS should look as follows.
@@ -58,7 +58,7 @@ With that, in the YAML file the type under the `topics` section can have a `/` (
 
 Notice that this system handle maps soss messages dyrectly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
 
-## Run soss (with ros2)
+### Run soss (with ros2)
 
 0. Source the ros2 environment and compile with `--packages-up-to soss-ros2-test`
 1. Source the current workspace (source instal/local_setup.bash)
@@ -69,17 +69,19 @@ and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOI
 - Also, you can have a look to the [internal design](fiware/doc/design.md)
 - For a fast configuration, you can use the [dockerfile](Dockerfile)
 
-## Changelog
+### Changelog
 
-### v0.1.2
+#### v0.1.2
 
 - Added dockerfiles
 - Added integration tests
 - Removed asio as local thirdparty
-### v0.1.1
+
+#### v0.1.1
 - Fiware communication take into account the topic type
 - Added thread protection
-### v0.1.0
+
+#### v0.1.0
 - Fiware communication in both directions based on topic
 
 ---
@@ -102,7 +104,6 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020  
 research and innovation programme under grant agreement no. 732287. 
-
 
  [soss]: https://github.com/osrf/soss
  [fiware]: https://www.fiware.org/
