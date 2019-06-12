@@ -86,6 +86,32 @@ soss::Message roundtrip(
     return receive_msg_future.get();
 }
 
+bool create_fiware_entity(const std::string& entity, const std::string& type)
+{
+    const std::string create_entity_command =
+        "curl " FIWARE_ADDRESS "/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF \n"
+        "{\n"
+        "    \"id\": \"" + entity + "\",\n"
+        "    \"type\": \"" + type + "\",\n"
+        "    \"data\": {\n"
+        "        \"value\": \"\",\n"
+        "        \"type\": \"String\"\n"
+        "    }\n"
+        "}\n"
+        "EOF";
+
+    return 0 == system(create_entity_command.c_str());
+}
+
+bool delete_fiware_entity(const std::string& entity, const std::string& type)
+{
+    const std::string delete_entity_command =
+        "curl " FIWARE_ADDRESS "/v2/entities/" + entity + "?type=" + type + " -s -S -H \
+        'Accept: application/json' -X DELETE";
+
+    return 0 == system(delete_entity_command.c_str());
+}
+
 TEST_CASE("Transmit to and receive from fiware", "[fiware]")
 {
     SECTION("basic-type")
@@ -93,19 +119,10 @@ TEST_CASE("Transmit to and receive from fiware", "[fiware]")
         const std::string fiware_entity = "fiware_mock_test_basic";
         const std::string topic_type = "fiware_test_string";
 
-        const std::string create_entity_command =
-            "curl " FIWARE_ADDRESS "/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF \n"
-            "{\n"
-            "    \"id\": \"" + fiware_entity + "\",\n"
-            "    \"type\": \"" + topic_type + "\",\n"
-            "    \"data\": {\n"
-            "        \"value\": \"\",\n"
-            "        \"type\": \"String\"\n"
-            "    }\n"
-            "}\n"
-            "EOF";
+        //Remove previous instance if exists
+        delete_fiware_entity(fiware_entity, topic_type);
 
-        REQUIRE(0 == system(create_entity_command.c_str()));
+        REQUIRE(create_fiware_entity(fiware_entity, topic_type));
 
         SECTION("roundtrip")
         {
@@ -129,10 +146,6 @@ TEST_CASE("Transmit to and receive from fiware", "[fiware]")
             REQUIRE(msg_to_fiware.type == msg_from_fiware.type);
         }
 
-        const std::string delete_entity_command =
-            "curl " FIWARE_ADDRESS "/v2/entities/" + fiware_entity + "?type=" + topic_type + " -s -S -H \
-            'Accept: application/json' -X DELETE";
-
-        REQUIRE(0 == system(delete_entity_command.c_str()));
+        REQUIRE(delete_fiware_entity(fiware_entity, topic_type));
     }
 }
