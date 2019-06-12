@@ -3,20 +3,32 @@
 System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 
 ## Installation
+To install this package into a workspace already containing SOSS, just clone this repository into the sources directory and build it:
+    ```
+    git clone git@github.com:eProsima/SOSS-FIWARE.git
+    (in the root of the workspace) colcon build --packages-up-to soss-fiware
+    ```
+## Use case - Connecting with ROS2
 
 0. Prerequisites: curlpp and asio installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
 2. Clone the soss project into the source subfolder.
+    ```
+    git clone git@github.com:osrf/soss_v2.git
+    ```
 3. Clone this project into the subfolder.
-4. Clone the soss-ros2 plugin (or any other plugin needed) into the subfolder. <!-- ToDo: Add link to soss-ros2 -->:
+    ```
+    git clone git@github.com:eProsima/SOSS-FIWARE.git
+    ```
 
     The workspace layout should look like this:
     ```
         soss_wp
         └── src
             ├── soss
-            |   └── ... (soss project subfolders)
-            ├── soss-ros2 (repo)
+            |   └── ... (other soss project subfolders)
+            │   └── packages
+            │       └── soss-ros2 (ROS2 system handle)
             └── soss-fiware (repo)
                     ├── fiware (soss-fiware colcon pkg)
                     └── fiware-test (soss-fiware-test colcon pkg)
@@ -58,11 +70,7 @@ With that, in the YAML file the type under the `topics` section can have a `/` (
 
 Notice that this system handle maps soss messages dyrectly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
 
-### Run soss (with ros2)
-
-0. Source the ros2 environment and compile with `--packages-up-to soss-ros2-test`
-1. Source the current workspace (source instal/local_setup.bash)
-1. Run soss (with the sample configuration): `soss src/soss-fiware/fiware/sample/hello_fiware_ros2.yaml`
+### More information
 
 - For more information, you can see the [demo steps](fiware/sample/demo.md),
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
