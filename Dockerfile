@@ -36,9 +36,9 @@ RUN apt-get install -y libcurlpp-dev #Required for fiware
 RUN . /opt/ros/crystal/setup.sh && \
     colcon build --packages-up-to soss-ros2-test soss-fiware-test --cmake-args -DCMAKE_BUILD_TYPE=RELEASE --install-base /opt/soss
 
-# Check compilation # Enable when the test be generalized.
-#RUN . /opt/ros/crystal/setup.sh && \
-#    colcon test --packages-up-to soss-ros2-test soss-fiware-test --install-base /opt/soss
+# Check compilation
+RUN . /opt/ros/crystal/setup.sh && \
+    colcon test --packages-up-to soss-ros2-test soss-fiware-test --install-base /opt/soss
 
 # Prepare environment
 WORKDIR /root
