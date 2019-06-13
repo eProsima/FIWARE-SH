@@ -79,11 +79,12 @@ and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOI
 
 ### Changelog
 
-#### v0.1.2
+#### v0.2.0
 
 - Added dockerfiles
 - Added integration tests
 - Removed asio as local thirdparty
+- Subscription host and port automatically generated.
 
 #### v0.1.1
 - Fiware communication take into account the topic type
