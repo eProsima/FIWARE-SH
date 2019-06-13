@@ -23,7 +23,7 @@ $ colcon build --packages-up-to soss-fiware
     ```
 3. Clone this project into the subfolder.
     ```
-    git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
+    $ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
     ```
 
     The workspace layout should look like this:
