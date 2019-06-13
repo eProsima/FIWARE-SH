@@ -87,9 +87,8 @@ Notice that this system handle maps soss messages dyrectly to a JSON compatible 
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
 - Also, you can have a look to the [internal design](fiware/doc/design.md)
 - For a fast configuration, you can use the [dockerfile](Dockerfile). 
-**NOTICE**: Both when building and running the Dockerfile, you must specify the option `--network=host`, 
-because FIWARE SH tells Orion context broker its own IP in order to make subscriptions,
-and for it to work the docker IP must be the same as the host IP.
+**NOTICE**: Fiware Orion context broker may not be able to reach the docker ip, as the docker IP is not accessible outside the host computer by default.
+You can run (or build if necessary) the docker with --network=host to share the network interface of the host with Docker, and make it accessible in your LAN.
 
 ### Changelog
 
