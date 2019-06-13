@@ -11,7 +11,7 @@ $ colcon build --packages-up-to soss-fiware
 ```
 ## Use case - Connecting with ROS2
 
-0. Prerequisites: curlpp and asio installed
+0. Prerequisites: [curlpp](https://github.com/jpbarrette/curlpp) and [asio](https://think-async.com/) installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
     ```
     mkdir -p soss_wp/src
