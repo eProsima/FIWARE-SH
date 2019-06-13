@@ -4,21 +4,26 @@ System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 
 ## Installation
 To install this package into a workspace already containing SOSS, just clone this repository into the sources directory and build it:
-    ```
-    git clone git@github.com:eProsima/SOSS-FIWARE.git
-    (in the root of the workspace) colcon build --packages-up-to soss-fiware
-    ```
+```
+$ cd <soss workspace folder>
+$ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
+$ colcon build --packages-up-to soss-fiware
+```
 ## Use case - Connecting with ROS2
 
-0. Prerequisites: curlpp and asio installed
+0. Prerequisites: [curlpp](https://github.com/jpbarrette/curlpp) and [asio](https://think-async.com/) installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
+    ```
+    $ mkdir -p soss_wp/src
+    $ cd soss_wp
+    ```
 2. Clone the soss project into the source subfolder.
     ```
-    git clone git@github.com:osrf/soss_v2.git
+    $ git clone git@github.com:osrf/soss_v2.git src/soss
     ```
 3. Clone this project into the subfolder.
     ```
-    git clone git@github.com:eProsima/SOSS-FIWARE.git
+    $ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
     ```
 
     The workspace layout should look like this:
@@ -34,8 +39,14 @@ To install this package into a workspace already containing SOSS, just clone thi
                     └── fiware-test (soss-fiware-test colcon pkg)
     ```
 
-5. In the workspace folder, execute colcon: `colcon build --packages-up-to soss-fiware`.
-6. Source the current environment: `source install/local_setup.bash`.
+5. In the workspace folder, execute colcon: 
+    ```
+    $ colcon build --packages-up-to soss-fiware
+    ```
+6. Source the current environment:
+    ```
+    $ source install/local_setup.bash
+    ```
 
 ## Usage
 
@@ -60,7 +71,7 @@ topics:
     hello_ros2: { type: "std_msgs/String", route: fiware_to_ros2 }
 ```
 
-To see how general SOSS systems, users and topics are configured, please refer to [SOSS' documentation](https://github.com/osrf/soss).
+To see how general SOSS systems, users and topics are configured, please refer to [SOSS' documentation][soss].
 
 For the FIWARE system handle, the user must give two extra YAML key-value pairs which are the host and port in which this system handle will try to connect to an instance of FIWARE's Orion context broker.
 
@@ -72,18 +83,20 @@ Notice that this system handle maps soss messages dyrectly to a JSON compatible 
 
 ### More information
 
-- For more information, you can see the [demo steps](fiware/sample/demo.md),
+- For more information, you can see the [demo steps](fiware/doc/demo.md),
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
 - Also, you can have a look to the [internal design](fiware/doc/design.md)
-- For a fast configuration, you can use the [dockerfile](Dockerfile)
+- For a fast configuration, you can use the [dockerfile](Dockerfile). 
+**NOTICE**: Fiware Orion context broker may not be able to reach the docker ip, as the docker IP is not accessible outside the host computer by default.
+You can run (or build if necessary) the docker with --network=host to share the network interface of the host with Docker, and make it accessible in your LAN.
 
 ### Changelog
 
-#### v0.1.2
-
+#### v0.2.0
 - Added dockerfiles
 - Added integration tests
 - Removed asio as local thirdparty
+- Subscription host and port automatically generated if they are not specified.
 
 #### v0.1.1
 - Fiware communication take into account the topic type

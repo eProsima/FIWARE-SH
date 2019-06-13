@@ -15,7 +15,6 @@
     - `src` folder: contains the implementation of *soss-fiware* library.
     - `doc` folder: contains the design and user documentation.
     - `sample` folder: contains a *.yaml* file example and utils for running *soss-fiware* easily.
-    - `utils` folder: contains scripts and utilities.
 - `fiware-test`: system handler for testing the `fiware` system handler.
     - `src` folder: contains the test sources
     - `resources` folder: contains the yaml configurations for the tests.

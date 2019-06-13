@@ -42,7 +42,7 @@ RUN . /opt/ros/crystal/setup.sh && \
 
 # Prepare environment
 WORKDIR /root
-RUN cp soss_wp/src/fiware/fiware/sample/hello_fiware_ros2.yaml .
+RUN cp soss_wp/src/fiware/fiware/sample/fiware_ros2.yaml .
 RUN rm -rf soss_wp
 
-ENTRYPOINT . /opt/soss/setup.sh && echo "[NOTE] Write: 'soss hello_fiware_ros2.yaml' to test soss with ros2 and fiware" && bash
+ENTRYPOINT . /opt/soss/setup.sh && echo "[NOTE] Write: 'soss fiware_ros2.yaml' to test soss with ros2 and fiware" && bash
