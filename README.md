@@ -45,7 +45,7 @@ $ colcon build --packages-up-to soss-fiware
     ```
 6. Source the current environment:
     ```
-    source install/local_setup.bash
+    $ source install/local_setup.bash
     ```
 
 ## Usage
