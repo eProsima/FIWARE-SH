@@ -14,7 +14,7 @@ $ colcon build --packages-up-to soss-fiware
 0. Prerequisites: [curlpp](https://github.com/jpbarrette/curlpp) and [asio](https://think-async.com/) installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
     ```
-    mkdir -p soss_wp/src
+    $ mkdir -p soss_wp/src
     cd soss_wp
     ```
 2. Clone the soss project into the source subfolder.
