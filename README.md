@@ -19,7 +19,7 @@ $ colcon build --packages-up-to soss-fiware
     ```
 2. Clone the soss project into the source subfolder.
     ```
-    git clone git@github.com:osrf/soss_v2.git src/soss
+    $ git clone git@github.com:osrf/soss_v2.git src/soss
     ```
 3. Clone this project into the subfolder.
     ```
