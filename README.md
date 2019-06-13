@@ -15,7 +15,7 @@ $ colcon build --packages-up-to soss-fiware
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
     ```
     $ mkdir -p soss_wp/src
-    cd soss_wp
+    $ cd soss_wp
     ```
 2. Clone the soss project into the source subfolder.
     ```
