@@ -1,6 +1,6 @@
 # Fiware system handle demo
 
-[This link](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1) contains a demonstration on how FIWARE can exchange messages with ROS2 using SOSS and the soss-fiware and soss-ros2 system handles.
+[This link](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1) contains a demonstration on how FIWARE can exchange messages with ROS2 using SOSS through `soss-fiware` and `soss-ros2` system handles.
 
 ### 0. Terminals layout
 1. [console 1] fiware client. The fiware context broker is already open at `192.168.1.59:1026`.
