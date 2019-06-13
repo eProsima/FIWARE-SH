@@ -179,5 +179,3 @@ curl 192.168.1.59:1026/v2/entities/hello_ros2?type=std_msgsString -s -S -H 'Acce
 ```
 curl 192.168.1.59:1026/v2/subscriptions/5cc3f909efccc70b574a4611 -s -S -H 'Accept: application/json' -X DELETE
 ```
-
-For removing all subscriptions, please, use the script found in fiware/utils called `erase_subscriptions.sh`
