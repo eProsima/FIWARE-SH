@@ -4,10 +4,11 @@ System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 
 ## Installation
 To install this package into a workspace already containing SOSS, just clone this repository into the sources directory and build it:
-    ```
-    git clone git@github.com:eProsima/SOSS-FIWARE.git
-    (in the root of the workspace) colcon build --packages-up-to soss-fiware
-    ```
+```
+$ cd <soss workspace folder>
+$ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
+$ colcon build --packages-up-to soss-dds
+```
 ## Use case - Connecting with ROS2
 
 0. Prerequisites: curlpp and asio installed
@@ -72,7 +73,7 @@ Notice that this system handle maps soss messages dyrectly to a JSON compatible 
 
 ### More information
 
-- For more information, you can see the [demo steps](fiware/sample/demo.md),
+- For more information, you can see the [demo steps](fiware/doc/demo.md),
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
 - Also, you can have a look to the [internal design](fiware/doc/design.md)
 - For a fast configuration, you can use the [dockerfile](Dockerfile). 
