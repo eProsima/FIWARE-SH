@@ -1,5 +1,5 @@
 # Fiware system handle demo (April 2019)
-![](simple_diagram.png "Console diagram")
+![](diagrams-design/simple_diagram.png "Console diagram")
 
 ## Demo steps
 > **print** after the sentence means that the message must be printed in video post-production
