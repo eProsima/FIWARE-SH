@@ -49,11 +49,11 @@ ros2 topic echo /hello_ros2 std_msgs/String
 ### 3. Run SOSS [Console 2]
 1. See yaml file for configuration.
 ```
-vi path/to/fiware_SH/fiware/sample/hello_fiware_ros2.yaml
+vi path/to/fiware_SH/fiware/sample/fiware_ros2.yaml
 ```
 1. Run soss
 ```
-soss path/to/fiware_SH/fiware/sample/hello_fiware_ros2.yaml
+soss path/to/fiware_SH/fiware/sample/fiware_ros2.yaml
 ```
 1. New topic arrives to ros2 because soss has subscribed to `hello_ros2` topic.
 

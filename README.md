@@ -84,7 +84,6 @@ and for it to work the docker IP must be the same as the host IP.
 ### Changelog
 
 #### v0.2.0
-
 - Added dockerfiles
 - Added integration tests
 - Removed asio as local thirdparty
