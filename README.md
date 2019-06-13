@@ -97,7 +97,7 @@ and for it to work the docker IP must be the same as the host IP.
 - Added dockerfiles
 - Added integration tests
 - Removed asio as local thirdparty
-- Subscription host and port automatically generated.
+- Subscription host and port automatically generated if they are not specified.
 
 #### v0.1.1
 - Fiware communication take into account the topic type
