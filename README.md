@@ -7,19 +7,23 @@ To install this package into a workspace already containing SOSS, just clone thi
 ```
 $ cd <soss workspace folder>
 $ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
-$ colcon build --packages-up-to soss-dds
+$ colcon build --packages-up-to soss-fiware
 ```
 ## Use case - Connecting with ROS2
 
 0. Prerequisites: curlpp and asio installed
 1. [Create a colcon workspace](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#create-a-workspace).
+    ```
+    mkdir -p soss_wp/src
+    cd soss_wp
+    ```
 2. Clone the soss project into the source subfolder.
     ```
-    git clone git@github.com:osrf/soss_v2.git
+    git clone git@github.com:osrf/soss_v2.git src/soss
     ```
 3. Clone this project into the subfolder.
     ```
-    git clone git@github.com:eProsima/SOSS-FIWARE.git
+    git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
     ```
 
     The workspace layout should look like this:
@@ -35,8 +39,14 @@ $ colcon build --packages-up-to soss-dds
                     └── fiware-test (soss-fiware-test colcon pkg)
     ```
 
-5. In the workspace folder, execute colcon: `colcon build --packages-up-to soss-fiware`.
-6. Source the current environment: `source install/local_setup.bash`.
+5. In the workspace folder, execute colcon: 
+    ```
+    colcon build --packages-up-to soss-fiware
+    ```
+6. Source the current environment:
+    ```
+    source install/local_setup.bash
+    ```
 
 ## Usage
 
