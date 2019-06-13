@@ -61,7 +61,7 @@ topics:
     hello_ros2: { type: "std_msgs/String", route: fiware_to_ros2 }
 ```
 
-To see how general SOSS systems, users and topics are configured, please refer to [SOSS' documentation](https://github.com/osrf/soss).
+To see how general SOSS systems, users and topics are configured, please refer to [SOSS' documentation][soss].
 
 For the FIWARE system handle, the user must give two extra YAML key-value pairs which are the host and port in which this system handle will try to connect to an instance of FIWARE's Orion context broker.
 

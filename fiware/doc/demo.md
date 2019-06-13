@@ -1,4 +1,4 @@
-# Fiware system handle demo (April 2019)
+# Fiware system handle demo
 
 [This link](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1) contains a demonstration on how FIWARE can exchange messages with ROS2 using SOSS and the soss-fiware and soss-ros2 system handles.
 
