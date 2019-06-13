@@ -41,7 +41,7 @@ $ colcon build --packages-up-to soss-fiware
 
 5. In the workspace folder, execute colcon: 
     ```
-    colcon build --packages-up-to soss-fiware
+    $ colcon build --packages-up-to soss-fiware
     ```
 6. Source the current environment:
     ```
