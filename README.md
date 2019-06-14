@@ -79,15 +79,15 @@ FIWARE does not allow certain characters in its entities names. For this reason,
 
 With that, in the YAML file the type under the `topics` section can have a `/` (and to connect to ROS2, normally it will HAVE to), just remember that in FIWARE the entity created must have the same name but with two underscores instead of a slash.
 
-Notice that this system handle maps soss messages dyrectly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
+Notice that this system handle maps soss messages directly to a JSON compatible with FIWARE. As FIWARE doesn't allow nested types, neither does this system handle.
 
 ### More information
 
-- For more information, you can see the [demo steps](fiware/doc/demo.md),
+- For more information, you can see the [demo steps](fiware/doc/demo.md)
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
-- Also, you can have a look to the [internal design](fiware/doc/design.md)
+- Also, you can have a look at the [internal design](fiware/doc/design.md)
 - For a fast configuration, you can use the [dockerfile](Dockerfile). 
-**NOTICE**: Fiware Orion context broker may not be able to reach the docker ip, as the docker IP is not accessible outside the host computer by default.
+**NOTICE**: Fiware Orion context broker may not be able to reach the docker IP, as is not accessible outside the host computer by default.
 You can run (or build if necessary) the docker with --network=host to share the network interface of the host with Docker, and make it accessible in your LAN.
 
 ### Changelog

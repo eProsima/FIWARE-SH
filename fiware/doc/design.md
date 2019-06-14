@@ -17,6 +17,5 @@
     - `sample` folder: contains a *.yaml* file example and utils for running *soss-fiware* easily.
 - `fiware-test`: system handler for testing the `fiware` system handler.
     - `src` folder: contains the test sources
-    - `resources` folder: contains the yaml configurations for the tests.
     - `thirdparty` folder: contains the external code used and distributed with the project.
         - `catch2` folder: contains the *catch2* test framework
