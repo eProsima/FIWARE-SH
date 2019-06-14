@@ -5,7 +5,7 @@
 ### 0. Terminals layout
 1. [console 1] fiware client. The fiware context broker is already open at `192.168.1.59:1026`.
 1. [console 2] soss (with soss environment configured)
-1. [console 3] ros2 publiher (with ros2 environment configured)
+1. [console 3] ros2 publisher (with ros2 environment configured)
 1. [console 4] ros2 subscriber (with ros2 environment configured)
 
 ### 1. Create fiware entities
