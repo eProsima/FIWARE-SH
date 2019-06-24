@@ -64,7 +64,7 @@ std::string NGSIV2Connector::register_subscription(
     subscription_entity["type"] = type;
 
     Json manifest;
-    manifest["subject"]["entities"] = Json::array({ subscription_entity });
+    manifest["subject"]["entities"] = { subscription_entity };
     manifest["notification"]["http"]["url"] = url.str();
 
     std::string response = request("POST", true, "subscriptions", manifest);
