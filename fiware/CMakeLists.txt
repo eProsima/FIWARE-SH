@@ -19,10 +19,11 @@ cmake_minimum_required(VERSION 3.5.0)
 project(soss-fiware)
 
 find_package(soss-core REQUIRED)
-if (WIN32)
-find_package(yaml-cpp REQUIRED)
-include(FindCURL)
-find_package(curl REQUIRED)
+
+if(WIN32)
+    find_package(yaml-cpp REQUIRED)
+    include(FindCURL)
+    find_package(curl REQUIRED)
 endif()
 
 ########################################################################
@@ -32,15 +33,15 @@ find_library(CURLPP_LIBRARY NAMES curlpp PATH CURLPP_DIR)
 
 add_library(curlpp SHARED IMPORTED)
 
-if (WIN32)
-find_path(CURL_INCLUDE_DIRS NAMES "include/curl/curl.h")
-include_directories( 
-  "${CURL_INCLUDE_DIRS}"
-)
+if(WIN32)
+    find_path(CURL_INCLUDE_DIRS NAMES "include/curl/curl.h")
+    include_directories(
+      "${CURL_INCLUDE_DIRS}"
+    )
 
-include_directories( 
-  "${CURLPP_DIR}/include"
-)
+    include_directories(
+      "${CURLPP_DIR}/include"
+    )
 endif()
 
 set_target_properties(curlpp
@@ -82,36 +83,27 @@ set_target_properties(${PROJECT_NAME}
         INSTALL_RPATH_USE_LINK_PATH TRUE
 )
 
-if (UNIX AND NOT APPLE)
-    target_compile_options(${PROJECT_NAME}
+target_compile_options(${PROJECT_NAME}
     PRIVATE
-        -Werror -Wall -Wextra -Wpedantic
-		)
-endif ()
-	target_include_directories(${PROJECT_NAME}
+        $<$<CXX_COMPILER_ID:GNU>:-Werror -Wall -Wextra -Wpedantic>
+)
+
+target_include_directories(${PROJECT_NAME}
     PRIVATE
-        includes
+        include
         ${ASIO_INCLUDE_DIR}
 )
 
-
-if (WIN32)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
-        ${CURLPP_LIBRARY}
-        ${CURL_LIBRARIES}
-        yaml-cpp
-    PRIVATE
-        soss::core)
-else(WIN32)
-target_link_libraries(${PROJECT_NAME}
+        $<$<PLATFORM_ID:Windows>:${CURLPP_LIBRARY}>
+        $<$<PLATFORM_ID:Windows>:${CURL_LIBRARIES}>
+        $<$<PLATFORM_ID:Windows>:yaml-cpp>
     PRIVATE
         soss::core
-        curlpp
-        pthread
+        $<$<PLATFORM_ID:Linux>:curlpp>
+        $<$<PLATFORM_ID:Linux>:pthread>
     )
-endif ()
-
 
 ########################################################################
 # Installation
@@ -120,9 +112,8 @@ soss_install_middleware_plugin(
     TARGET soss-fiware curlpp
 )
 
-########################################################################
 # Windows dll dependencies installation
-if (WIN32)
+if(WIN32)
     find_file(CURLPPDLL NAMES "curlpp.dll" PATHS "${CURLPP_DIR}" PATH_SUFFIXES "bin" )
     find_file(CURLDDLL NAMES "libcurl-d.dll" PATHS "${CURL_INCLUDE_DIR}/../" PATH_SUFFIXES "bin" )
     find_file(CURLDLL NAMES "libcurl.dll" PATHS "${CURL_INCLUDE_DIR}/../" PATH_SUFFIXES "bin" )

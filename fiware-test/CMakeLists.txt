@@ -20,7 +20,10 @@ project(soss-fiware-test)
 
 find_package(soss-fiware REQUIRED)
 find_package(soss-mock REQUIRED)
-find_package(yaml-cpp REQUIRED)
+
+if(WIN32)
+    find_package(yaml-cpp REQUIRED)
+endif()
 
 include(CTest)
 include(${PROJECT_SOURCE_DIR}/thirdparty/catch2/cmake/Catch.cmake)
@@ -37,12 +40,10 @@ set_target_properties(${PROJECT_NAME}
         POSITION_INDEPENDENT_CODE ON
 )
 
-if (UNIX AND NOT APPLE)
 target_compile_options(${PROJECT_NAME}
     PRIVATE
-        -Werror -Wall -Wextra -Wpedantic
+        $<$<CXX_COMPILER_ID:GNU>:-Werror -Wall -Wextra -Wpedantic>
 )
-endif()
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
@@ -52,7 +53,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         soss::mock
-        yaml-cpp
+        $<$<PLATFORM_ID:Windows>:yaml-cpp>
 )
 
 target_compile_definitions(${PROJECT_NAME}
