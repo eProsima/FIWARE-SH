@@ -19,29 +19,13 @@ cmake_minimum_required(VERSION 3.5.0)
 project(soss-fiware)
 
 find_package(soss-core REQUIRED)
-if (WIN32)
-find_package(yaml-cpp REQUIRED)
-include(FindCURL)
-find_package(curl REQUIRED)
-endif()
 
 ########################################################################
 # Find curl
-find_path(CURLPP_DIR NAMES "include/curlpp/cURLpp.hpp" CMAKE_FIND_ROOT_PATH_BOTH)
+find_path(CURLPP_DIR NAMES "include/curlpp/cURLpp.hpp")
 find_library(CURLPP_LIBRARY NAMES curlpp PATH CURLPP_DIR)
 
 add_library(curlpp SHARED IMPORTED)
-
-if (WIN32)
-find_path(CURL_INCLUDE_DIRS NAMES "include/curl/curl.h")
-include_directories( 
-  "${CURL_INCLUDE_DIRS}"
-)
-
-include_directories( 
-  "${CURLPP_DIR}/include"
-)
-endif()
 
 set_target_properties(curlpp
     PROPERTIES
@@ -82,36 +66,23 @@ set_target_properties(${PROJECT_NAME}
         INSTALL_RPATH_USE_LINK_PATH TRUE
 )
 
-if (UNIX AND NOT APPLE)
-    target_compile_options(${PROJECT_NAME}
+target_compile_options(${PROJECT_NAME}
     PRIVATE
         -Werror -Wall -Wextra -Wpedantic
-		)
-endif ()
-	target_include_directories(${PROJECT_NAME}
+)
+
+target_include_directories(${PROJECT_NAME}
     PRIVATE
-        includes
+        include
         ${ASIO_INCLUDE_DIR}
 )
 
-
-if (WIN32)
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-        ${CURLPP_LIBRARY}
-        ${CURL_LIBRARIES}
-        yaml-cpp
-    PRIVATE
-        soss::core)
-else(WIN32)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         soss::core
         curlpp
         pthread
-    )
-endif ()
-
+)
 
 ########################################################################
 # Installation
@@ -120,14 +91,3 @@ soss_install_middleware_plugin(
     TARGET soss-fiware curlpp
 )
 
-########################################################################
-# Windows dll dependencies installation
-if (WIN32)
-    find_file(CURLPPDLL NAMES "curlpp.dll" PATHS "${CURLPP_DIR}" PATH_SUFFIXES "bin" )
-    find_file(CURLDDLL NAMES "libcurl-d.dll" PATHS "${CURL_INCLUDE_DIR}/../" PATH_SUFFIXES "bin" )
-    find_file(CURLDLL NAMES "libcurl.dll" PATHS "${CURL_INCLUDE_DIR}/../" PATH_SUFFIXES "bin" )
-
-    install (FILES ${CURLPPDLL} DESTINATION "${CMAKE_INSTALL_PREFIX}/../bin")
-    install (FILES ${CURLDLL} DESTINATION "${CMAKE_INSTALL_PREFIX}/../bin")
-    install (FILES ${CURLDDLL} DESTINATION "${CMAKE_INSTALL_PREFIX}/../bin")
-endif()

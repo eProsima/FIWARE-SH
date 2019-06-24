@@ -22,7 +22,6 @@
 #include "Subscriber.hpp"
 
 #include <soss/SystemHandle.hpp>
-#include <soss/Soss_export.hpp>
 
 #include <vector>
 #include <memory>
@@ -33,7 +32,7 @@ namespace fiware {
 
 class NGSIV2Connector;
 
-class SYSTEM_HANDLE_EXPORT SystemHandle : public virtual TopicSystem
+class SystemHandle : public virtual TopicSystem
 {
 public:
     SystemHandle() = default;
