@@ -19,9 +19,11 @@ cmake_minimum_required(VERSION 3.5.0)
 project(soss-fiware)
 
 find_package(soss-core REQUIRED)
+if (WIN32)
 find_package(yaml-cpp REQUIRED)
 include(FindCURL)
 find_package(curl REQUIRED)
+endif()
 
 ########################################################################
 # Find curl
@@ -30,14 +32,16 @@ find_library(CURLPP_LIBRARY NAMES curlpp PATH CURLPP_DIR)
 
 add_library(curlpp SHARED IMPORTED)
 
+if (WIN32)
 find_path(CURL_INCLUDE_DIRS NAMES "include/curl/curl.h")
 include_directories( 
   "${CURL_INCLUDE_DIRS}"
 )
 
- include_directories( 
+include_directories( 
   "${CURLPP_DIR}/include"
 )
+endif()
 
 set_target_properties(curlpp
     PROPERTIES
@@ -102,10 +106,10 @@ target_link_libraries(${PROJECT_NAME}
 else(WIN32)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-		yaml-cpp
         soss::core
         curlpp
-        pthread)
+        pthread
+    )
 endif ()
 
 
