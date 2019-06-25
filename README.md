@@ -1,3 +1,5 @@
+
+[![soss-commit](https://img.shields.io/badge/soss--commit-660078e-blue.svg)](https://github.com/osrf/soss_v2/tree/660078e9fee9fca1b3094d62dc6a22d4a1e80a38)
 # soss-fiware
 
 System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
@@ -39,7 +41,7 @@ $ colcon build --packages-up-to soss-fiware
                     └── fiware-test (soss-fiware-test colcon pkg)
     ```
 
-5. In the workspace folder, execute colcon: 
+5. In the workspace folder, execute colcon:
     ```
     $ colcon build --packages-up-to soss-fiware
     ```
@@ -54,7 +56,7 @@ This system handle can be used to connect FIWARE with other systems.
 
 ### Configuration
 
-SOSS must be configured with a YAML file, which tells the program everything it needs to know in order to establish the connection between two or more systems that the user wants. 
+SOSS must be configured with a YAML file, which tells the program everything it needs to know in order to establish the connection between two or more systems that the user wants.
 For example, if a simple string message wants to be exchanged between FIWARE and ROS2, the configuration file for SOSS should look as follows.
 
 ```YAML
@@ -75,7 +77,7 @@ To see how general SOSS systems, users and topics are configured, please refer t
 
 For the FIWARE system handle, the user must give two extra YAML key-value pairs which are the host and port in which this system handle will try to connect to an instance of FIWARE's Orion context broker.
 
-FIWARE does not allow certain characters in its entities names. For this reason, if a type defined in the topics section of the configuration file has in its name a `/`, the FIWARE system handle will map that character into two underscores. This is something important to notice when connecting to ROS2, because in ROS2 most of the types have a `/` in their names. Also, notice that in FIWARE the type will be published as an entity with the same name but with every slash substituted with two underscores. 
+FIWARE does not allow certain characters in its entities names. For this reason, if a type defined in the topics section of the configuration file has in its name a `/`, the FIWARE system handle will map that character into two underscores. This is something important to notice when connecting to ROS2, because in ROS2 most of the types have a `/` in their names. Also, notice that in FIWARE the type will be published as an entity with the same name but with every slash substituted with two underscores.
 
 With that, in the YAML file the type under the `topics` section can have a `/` (and to connect to ROS2, normally it will HAVE to), just remember that in FIWARE the entity created must have the same name but with two underscores instead of a slash.
 
@@ -86,7 +88,7 @@ Notice that this system handle maps soss messages directly to a JSON compatible 
 - For more information, you can see the [demo steps](fiware/doc/demo.md)
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
 - Also, you can have a look at the [internal design](fiware/doc/design.md)
-- For a fast configuration, you can use the [dockerfile](Dockerfile). 
+- For a fast configuration, you can use the [dockerfile](Dockerfile).
 **NOTICE**: Fiware Orion context broker may not be able to reach the docker IP, as is not accessible outside the host computer by default.
 You can run (or build if necessary) the docker with --network=host to share the network interface of the host with Docker, and make it accessible in your LAN.
 
@@ -107,24 +109,24 @@ You can run (or build if necessary) the docker with --network=host to share the 
 
 ---
 
-<!-- 
+<!--
     ROSIN acknowledgement from the ROSIN press kit
     @ https://github.com/rosin-project/press_kit
 -->
 
 <a href="http://rosin-project.eu">
-  <img src="http://rosin-project.eu/wp-content/uploads/rosin_ack_logo_wide.png" 
+  <img src="http://rosin-project.eu/wp-content/uploads/rosin_ack_logo_wide.png"
        alt="rosin_logo" height="60" >
 </a>
 
-Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.  
+Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.
 More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
-<img src="http://rosin-project.eu/wp-content/uploads/rosin_eu_flag.jpg" 
-     alt="eu_flag" height="45" align="left" >  
+<img src="http://rosin-project.eu/wp-content/uploads/rosin_eu_flag.jpg"
+     alt="eu_flag" height="45" align="left" >
 
-This project has received funding from the European Union’s Horizon 2020  
-research and innovation programme under grant agreement no. 732287. 
+This project has received funding from the European Union’s Horizon 2020
+research and innovation programme under grant agreement no. 732287.
 
  [soss]: https://github.com/osrf/soss
  [fiware]: https://www.fiware.org/
