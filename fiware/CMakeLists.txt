@@ -97,7 +97,8 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         $<$<PLATFORM_ID:Windows>:${CURLPP_LIBRARY}>
-        $<$<PLATFORM_ID:Windows>:${CURL_LIBRARIES}>
+        $<$<AND:$<PLATFORM_ID:Windows>,$<CONFIG:Debug>>:${CURL_LIBRARY_DEBUG}>
+        $<$<AND:$<PLATFORM_ID:Windows>,$<CONFIG:Release>>:${CURL_LIBRARY_RELEASE}>
         $<$<PLATFORM_ID:Windows>:yaml-cpp>
     PRIVATE
         soss::core
