@@ -8,7 +8,7 @@ System handle to connect [*SOSS*][soss] to [*FIWARE*][fiware]
 To install this package into a workspace already containing SOSS, just clone this repository into the sources directory and build it:
 ```
 $ cd <soss workspace folder>
-$ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
+$ git clone https://github.com/eProsima/SOSS-FIWARE.git src/soss-fiware
 $ colcon build --packages-up-to soss-fiware
 ```
 ## Use case - Connecting with ROS2
@@ -21,11 +21,11 @@ $ colcon build --packages-up-to soss-fiware
     ```
 2. Clone the soss project into the source subfolder.
     ```
-    $ git clone git@github.com:osrf/soss_v2.git src/soss
+    $ git clone https://github.com/osrf/soss_v2.git src/soss
     ```
 3. Clone this project into the subfolder.
     ```
-    $ git clone git@github.com:eProsima/SOSS-FIWARE.git src/soss-fiware
+    $ git clone https://github.com/eProsima/SOSS-FIWARE.git src/soss-fiware
     ```
 
     The workspace layout should look like this:
