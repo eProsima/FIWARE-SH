@@ -62,7 +62,7 @@ For example, if a simple string message wants to be exchanged between FIWARE and
 ```YAML
 systems:
     ros2: { type: ros2 }
-    fiware: { type: fiware, host: "192.168.1.59", port: 1026}
+    fiware: { type: fiware, host: CONTEXT_BROKER_IP, port: 1026}
 
 routes:
     fiware_to_ros2: { from: fiware, to: ros2 }

@@ -3,7 +3,7 @@
 [This link](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1) contains a demonstration on how FIWARE can exchange messages with ROS2 using SOSS through `soss-fiware` and `soss-ros2` system handles.
 
 ### 0. Terminals layout
-1. [console 1] fiware client. The fiware context broker is already open at `192.168.1.59:1026`.
+1. [console 1] fiware client. The fiware context broker is already open at `$FIWARE_HOST:1026`.
 1. [console 2] soss (with soss environment configured)
 1. [console 3] ros2 publisher (with ros2 environment configured)
 1. [console 4] ros2 subscriber (with ros2 environment configured)
@@ -11,7 +11,7 @@
 ### 1. Create fiware entities
 1. Create entity `hello_ros2` in fiware with type `std_msgs__String`.
 ```
-curl 192.168.1.59:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
 {
   "id": "hello_ros2",
   "type": "std_msgs__String",
@@ -24,7 +24,7 @@ EOF
 ```
 2. Create entity `hello_fiware` in fiware with type `std_msgs__String`.
 ```
-curl 192.168.1.59:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
 {
   "id": "hello_fiware",
   "type": "std_msgs__String",
@@ -37,7 +37,7 @@ EOF
 ```
 3. See entities.
 ```
-curl 192.168.1.59:1026/v2/entities?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 ### 2. Create Ros2 subscriber
@@ -60,7 +60,7 @@ soss path/to/fiware_SH/fiware/sample/fiware_ros2.yaml
 ### 4. Send topics from fiware to ros2
 1. Update the `hello_ros2` entity value.
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2/attrs?type=std_msgs__String -s -S -H 'Content-Type: application/json' -X PUT -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2/attrs?type=std_msgs__String -s -S -H 'Content-Type: application/json' -X PUT -d @- <<EOF
 {
   "data": {
     "value": "Hello, ros2 again",
@@ -74,7 +74,7 @@ EOF
 ### 5. Send topics from ros2 to fiware
 1. See current topic value for `hello_fiware`.
 ```
-curl 192.168.1.59:1026/v2/entities/hello_fiware?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_fiware?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 1. Run a ros2 publisher for sending `hello_fiware` topics with type `std_msgs/String`.
 ```
@@ -82,7 +82,7 @@ ros2 topic pub --once /hello_fiware std_msgs/String "{data: \"Hello, fiware\"}"
 ```
 1. Current topic value for `hello_fiware` updated.
 ```
-curl 192.168.1.59:1026/v2/entities/hello_fiware?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_fiware?type=std_msgs__String -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 ---
@@ -94,7 +94,7 @@ Modify the `ip:port` from the init of the *curl* command where the *fiware conte
 ### POST
 - Create entity
 ```
-curl 192.168.1.59:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF
 {
   "id": "hello_ros2",
   "type": "std_msgs__String",
@@ -108,7 +108,7 @@ EOF
 
 - Create subscription
 ```
-curl 192.168.1.59:1026/v2/subscriptions -s -S -H 'Content-Type: application/json' -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/subscriptions -s -S -H 'Content-Type: application/json' -d @- <<EOF
 {
   "subject": {
     "entities": [
@@ -130,7 +130,7 @@ EOF
 
 - Update an entity
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2/attrs?type=std_msgs__String -s -S -H 'Content-Type: application/json' -X PUT -d @- <<EOF
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2/attrs?type=std_msgs__String -s -S -H 'Content-Type: application/json' -X PUT -d @- <<EOF
 {
   "data": {
     "value": "Hello, ros2",
@@ -144,22 +144,22 @@ EOF
 
 - Show entity
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2 -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2 -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 - Show entity (specifying the type)
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2?type=std_msgsString -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2?type=std_msgsString -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 - List all entities
 ```
-curl 192.168.1.59:1026/v2/entities -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 - List all subscriptions
 ```
-curl 192.168.1.59:1026/v2/subscriptions -s -S -H 'Accept: application/json' | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/subscriptions -s -S -H 'Accept: application/json' | python -mjson.tool
 ```
 
 ### DELETE
@@ -167,15 +167,15 @@ curl 192.168.1.59:1026/v2/subscriptions -s -S -H 'Accept: application/json' | py
 - Remove entity
 
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2 -s -S -H 'Accept: application/json' -X DELETE | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2 -s -S -H 'Accept: application/json' -X DELETE | python -mjson.tool
 ```
 
 - Remove entity (specifying the type)
 ```
-curl 192.168.1.59:1026/v2/entities/hello_ros2?type=std_msgsString -s -S -H 'Accept: application/json' -X DELETE | python -mjson.tool
+curl $FIWARE_HOST:1026/v2/entities/hello_ros2?type=std_msgsString -s -S -H 'Accept: application/json' -X DELETE | python -mjson.tool
 ```
 
 - Remove subscription
 ```
-curl 192.168.1.59:1026/v2/subscriptions/5cc3f909efccc70b574a4611 -s -S -H 'Accept: application/json' -X DELETE
+curl $FIWARE_HOST:1026/v2/subscriptions/5cc3f909efccc70b574a4611 -s -S -H 'Accept: application/json' -X DELETE
 ```
