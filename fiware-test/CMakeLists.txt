@@ -53,7 +53,7 @@ target_link_libraries(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
-        "FIWARE__IP__TEST_CONFIG=\"192.168.1.59\""
+        "FIWARE__IP__TEST_CONFIG=\"192.168.1.139\""
         "FIWARE__PORT__TEST_CONFIG=\"1026\""
 )
 
