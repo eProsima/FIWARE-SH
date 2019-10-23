@@ -110,7 +110,6 @@ bool NGSIV2Connector::unregister_subscription(
         return false;
     }
 
-
     std::unique_lock<std::mutex> lock(subscription_mutex_);
     subscription_callbacks_.erase(subscription_id);
     lock.unlock();
@@ -145,15 +144,25 @@ bool NGSIV2Connector::update_entity(
 
 std::map<std::string, Json> NGSIV2Connector::request_types() const
 {
-    //TODO
-    return std::map<std::string, Json>();
+    std::string response = request("GET", true, "types?", Json{});
+    Json request = Json::parse(response.c_str() + response.find('[')); //skip HTTP header
+
+    std::map<std::string, Json> types;
+    for(auto& type_info: request)
+    {
+        std::string name = type_info["type"].get<std::string>();
+        Json type = type_info["attrs"];
+        types.emplace(name, std::move(type));
+    }
+
+    return types;
 }
 
 std::string NGSIV2Connector::request(
         const std::string& method,
         bool response_header,
         const std::string& urn,
-        const Json& json_message)
+        const Json& json_message) const
 {
     try
     {
@@ -165,7 +174,7 @@ std::string NGSIV2Connector::request(
         request.setOpt(new curlpp::options::Url(url.str()));
         //request.setOpt(new curlpp::options::Verbose(true)); //Enable for debugging purposes
 
-        if (method != "DELETE")
+        if (method != "DELETE" && method != "GET")
         {
             std::list<std::string> header;
             header.push_back("Content-Type: application/json");
@@ -176,7 +185,7 @@ std::string NGSIV2Connector::request(
 
         std::string payload;
 
-        if (method != "DELETE")
+        if (method != "DELETE" && method != "GET")
         {
             payload = json_message.dump();
             request.setOpt(new curlpp::options::PostFields(payload));
@@ -188,15 +197,18 @@ std::string NGSIV2Connector::request(
 
         request.perform();
 
+        /*
+        //DEBUG
         std::cout << "[soss-fiware][connector]: request to fiware, "
         << "url: " << url.str() << ", "
         << "method: " << method;
-        if (method != "DELETE")
+        if (method != "DELETE" && method != "GET")
         {
             std::cout << ", payload: " << std::endl
             << "  " << payload;
         }
         std::cout << std::endl;
+        */
 
         return response.str();
     }
@@ -215,7 +227,7 @@ std::string NGSIV2Connector::request(
 void NGSIV2Connector::receive(
             const std::string& message)
 {
-    Json json = Json::parse(message.c_str() + message.find('{'));
+    Json json = Json::parse(message.c_str() + message.find('{')); //skip http header
 
     std::string subscription_id = json["subscriptionId"];
     Json topic_data = json["data"][0];

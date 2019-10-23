@@ -71,7 +71,7 @@ private:
             const std::string& method,
             bool response_header,
             const std::string& urn,
-            const Json& json_message);
+            const Json& json_message) const;
 
     void receive(
             const std::string& message);

@@ -1,0 +1,11 @@
+systems:
+    fiware: { type: fiware, host: "192.168.1.139", port: 1026}
+    mock: { type: mock, types-from: fiware}
+
+routes:
+    fiware_to_mock: { from: fiware, to: mock }
+    mock_to_fiware: { from: mock, to: fiware }
+
+topics:
+    hello_mock_string: { type: "fiware_string", route: mock_to_fiware, remap: { mock: {topic: hello_fiware_string } } }
+    hello_fiware_string: { type: "fiware_string", route: fiware_to_mock }
