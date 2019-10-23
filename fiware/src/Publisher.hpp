@@ -18,38 +18,52 @@
 #ifndef SOSS__FIWARE__INTERNAL__PUBLISHER_HPP
 #define SOSS__FIWARE__INTERNAL__PUBLISHER_HPP
 
-#include <soss/Message.hpp>
+
+#include "conversion.hpp"
+#include "NGSIV2Connector.hpp"
+
 #include <soss/SystemHandle.hpp>
+
+#include <iostream>
 
 namespace soss {
 namespace fiware {
-
-
-class NGSIV2Connector;
 
 class Publisher : public virtual TopicPublisher
 {
 public:
     Publisher(
-            NGSIV2Connector* fiware_connector,
+            NGSIV2Connector& fiware_connector,
             const std::string& topic_name,
-            const std::string& message_type);
+            const xtypes::DynamicType& message_type)
+        : fiware_connector_{fiware_connector}
+        , topic_name_{topic_name}
+        , message_type_{message_type}
+    {}
 
     virtual ~Publisher() override = default;
 
-    Publisher(const Publisher& rhs) = delete;
-    Publisher& operator = (const Publisher& rhs) = delete;
-    Publisher(Publisher&& rhs) = delete;
-    Publisher& operator = (Publisher&& rhs) = delete;
-
     bool publish(
-            const soss::Message& message) override;
+            const xtypes::DynamicData& soss_message)
+    {
+        std::cout << "[soss-fiware][publisher]: translate message: soss -> fiware "
+            "(" << topic_name_ << ") " << std::endl;
+
+        Json fiware_message;
+        if(!conversion::soss_to_fiware(soss_message, fiware_message))
+        {
+            std::cerr << "[soss-fiware][publisher]: conversion error" << std::endl;
+            return false;
+        }
+
+        return fiware_connector_.update_entity(topic_name_, message_type_.name(), fiware_message);
+    }
 
 private:
-    NGSIV2Connector* const fiware_connector_;
+    NGSIV2Connector& fiware_connector_;
 
-    const std::string topic_name_;
-    const std::string message_type_;
+    std::string topic_name_;
+    const xtypes::DynamicType& message_type_;
 };
 
 

@@ -18,43 +18,69 @@
 #ifndef SOSS__FIWARE__INTERNAL__SUBSCRIBER_HPP
 #define SOSS__FIWARE__INTERNAL__SUBSCRIBER_HPP
 
-#include "json/json.hpp"
+#include "conversion.hpp"
+#include "NGSIV2Connector.hpp"
 
 #include <soss/SystemHandle.hpp>
 
+#include <functional>
+#include <iostream>
+
 namespace soss {
 namespace fiware {
-
-
-using Json = nlohmann::json;
-
-class NGSIV2Connector;
 
 class Subscriber
 {
 public:
     Subscriber(
-            NGSIV2Connector* fiware_connector,
+            NGSIV2Connector& fiware_connector,
             const std::string& topic_name,
-            const std::string& message_type,
-            TopicSubscriberSystem::SubscriptionCallback soss_callback);
+            const xtypes::DynamicType& message_type,
+            TopicSubscriberSystem::SubscriptionCallback soss_callback)
+        : fiware_connector_(fiware_connector)
+        , topic_name_{topic_name}
+        , message_type_{message_type}
+        , soss_callback_{soss_callback}
+    {}
 
-    ~Subscriber();
+    virtual ~Subscriber()
+    {
+        fiware_connector_.unregister_subscription(subscription_id_);
+    }
 
-    Subscriber(const Subscriber& rhs) = delete;
-    Subscriber& operator = (const Subscriber& rhs) = delete;
-    Subscriber(Subscriber&& rhs) = delete;
-    Subscriber& operator = (Subscriber&& rhs) = delete;
+    bool subscribe()
+    {
+        using namespace std::placeholders;
 
-    bool subscribe();
+        subscription_id_ = fiware_connector_.register_subscription(
+            topic_name_,
+            message_type_.name(),
+            std::bind(&Subscriber::receive, this, _1));
 
-    void receive(const Json& message);
+        return !subscription_id_.empty();
+    }
+
+    void receive(
+            const Json& fiware_message)
+    {
+        std::cout << "[soss-fiware][subscriber]: translate message: fiware -> soss "
+            "(" << topic_name_ << ") " << std::endl;
+
+        xtypes::DynamicData soss_message(message_type_);
+        if(!conversion::fiware_to_soss(fiware_message, soss_message))
+        {
+            std::cerr << "[soss-fiware][subscriber]: conversion error" << std::endl;
+            return;
+        }
+
+        soss_callback_(soss_message);
+    }
 
 private:
-    NGSIV2Connector* const fiware_connector_;
+    NGSIV2Connector& fiware_connector_;
 
-    const std::string topic_name_;
-    const std::string message_type_;
+    std::string topic_name_;
+    const xtypes::DynamicType& message_type_;
 
     std::string subscription_id_;
 

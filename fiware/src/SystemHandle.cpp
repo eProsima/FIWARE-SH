@@ -15,30 +15,23 @@
  *
 */
 
-#include "SystemHandle.hpp"
+
+#include "Publisher.hpp"
+#include "Subscriber.hpp"
 #include "NGSIV2Connector.hpp"
+
+#include <soss/SystemHandle.hpp>
 
 #include <iostream>
 #include <thread>
 #include <asio.hpp>
+#include <vector>
+#include <memory>
 
 namespace soss {
 namespace fiware{
 
 namespace {
-
-// This function patches the problem of FIWARE types, which do not admit '/' in their type name.
-std::string transform_type(const std::string& message_type)
-{
-    std::string type = message_type;
-
-    for(size_t i = type.find('/'); i != std::string::npos; i = type.find('/', i))
-    {
-        type.replace(i, 1, "__");
-    }
-
-    return type;
-}
 
 std::string my_local_ip_from(const std::string& host, uint16_t port)
 {
@@ -56,106 +49,119 @@ std::string my_local_ip_from(const std::string& host, uint16_t port)
     }
 }
 
-} //namespace
+} //anonymous namespace
 
-SystemHandle::~SystemHandle() = default;
 
-bool SystemHandle::configure(
-    const RequiredTypes& /* types */,
-    const YAML::Node& configuration)
+
+class SystemHandle : public virtual TopicSystem
 {
-    if (!configuration["host"] ||
-        !configuration["port"])
-    {
-        std::cerr << "[soss-fiware]: configuration must have the fiware context broker host and port." << std::endl;
-        return false;
-    }
+public:
+    SystemHandle() = default;
+    virtual ~SystemHandle() = default;
 
-    std::string host = configuration["host"].as<std::string>();
-    uint16_t port = configuration["port"].as<uint16_t>();
-
-    uint16_t subscription_port = 0;
-    if (configuration["subscription_port"])
+    bool configure(
+        const RequiredTypes& /* types */,
+        const YAML::Node& configuration,
+        soss::TypeRegistry& /*type_registry*/) override
     {
-        subscription_port = configuration["subscription_port"].as<uint16_t>();
-    }
-
-    std::string subscription_host;
-    if (configuration["subscription_host"])
-    {
-        subscription_host = configuration["subscription_host"].as<std::string>();
-    }
-    else
-    {
-        subscription_host = my_local_ip_from(host, port);
-        if (subscription_host.empty())
+        if (!configuration["host"] || !configuration["port"])
         {
-            std::cerr << "[soss-fiware]: Error getting the local ip addres from "
-                << host << ":" << port << std::endl;
+            std::cerr << "[soss-fiware]: configuration must have the fiware context broker host and port." << std::endl;
             return false;
         }
+
+        std::string host = configuration["host"].as<std::string>();
+        uint16_t port = configuration["port"].as<uint16_t>();
+
+        uint16_t subscription_port = 0;
+        if (configuration["subscription_port"])
+        {
+            subscription_port = configuration["subscription_port"].as<uint16_t>();
+        }
+
+        std::string subscription_host;
+        if (configuration["subscription_host"])
+        {
+            subscription_host = configuration["subscription_host"].as<std::string>();
+        }
+        else
+        {
+            subscription_host = my_local_ip_from(host, port);
+            if (subscription_host.empty())
+            {
+                std::cerr << "[soss-fiware]: Error getting the local ip addres from "
+                    << host << ":" << port << std::endl;
+                return false;
+            }
+        }
+
+        fiware_connector_ = std::make_unique<NGSIV2Connector>(host, port, subscription_host, subscription_port);
+
+        std::cout << "[soss-fiware]: configured!" << std::endl;
+        return true;
     }
 
-    fiware_connector_ = std::make_unique<NGSIV2Connector>(host, port, subscription_host, subscription_port);
-
-    std::cout << "[soss-fiware]: configured!" << std::endl;
-    return true;
-}
-
-bool SystemHandle::okay() const
-{
-    return !fiware_connector_->has_errors();
-}
-
-bool SystemHandle::spin_once()
-{
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(100ms);
-    return okay();
-}
-
-bool SystemHandle::subscribe(
-    const std::string& topic_name,
-    const std::string& message_type,
-    SubscriptionCallback callback,
-    const YAML::Node& /*configuration*/)
-{
-    auto subscriber = std::make_shared<Subscriber>(
-        fiware_connector_.get(), topic_name, transform_type(message_type), callback);
-
-    if (!subscriber->subscribe())
+    bool okay() const
     {
-        std::cerr << "[soss-fiware]: error when subscribing to fiware, "
-            "topic: " << topic_name << ", "
-            "type: " << message_type << std::endl;
-
-        return false;
+        return !fiware_connector_->has_errors();
     }
 
-    subscribers_.push_back(std::move(subscriber));
+    bool spin_once()
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(100ms);
+        return okay();
+    }
 
-    std::cout << "[soss-fiware]: subscriber created, "
-        "topic: " << topic_name << ", "
-        "type: " << message_type << std::endl;
+    bool subscribe(
+        const std::string& topic_name,
+        const xtypes::DynamicType& message_type,
+        SubscriptionCallback callback,
+        const YAML::Node& /*configuration*/)
+    {
+        auto subscriber = std::make_shared<Subscriber>(
+            *fiware_connector_, topic_name, message_type, callback);
 
-    return true;
-}
+        if (!subscriber->subscribe())
+        {
+            std::cerr << "[soss-fiware]: error when subscribing to fiware, "
+                "topic: " << topic_name << ", "
+                "type: " << message_type.name() << std::endl;
 
-std::shared_ptr<TopicPublisher> SystemHandle::advertise(
-    const std::string& topic_name,
-    const std::string& message_type,
-    const YAML::Node& /*configuration*/)
-{
-    auto publisher = std::make_shared<Publisher>(fiware_connector_.get(), topic_name, transform_type(message_type));
+            return false;
+        }
 
-    publishers_.push_back(std::move(publisher));
+        subscribers_.push_back(std::move(subscriber));
 
-    std::cout << "[soss-fiware]: publisher created, "
-        "topic: " << topic_name << ", "
-        "type: " << message_type << std::endl;
+        std::cout << "[soss-fiware]: subscriber created, "
+            "topic: " << topic_name << ", "
+            "type: " << message_type.name() << std::endl;
 
-    return publishers_.back();
-}
+        return true;
+    }
+
+    std::shared_ptr<TopicPublisher> advertise(
+        const std::string& topic_name,
+        const xtypes::DynamicType& message_type,
+        const YAML::Node& /*configuration*/)
+    {
+        auto publisher = std::make_shared<Publisher>(*fiware_connector_, topic_name, message_type);
+
+        publishers_.push_back(std::move(publisher));
+
+        std::cout << "[soss-fiware]: publisher created, "
+            "topic: " << topic_name << ", "
+            "type: " << message_type.name() << std::endl;
+
+        return publishers_.back();
+    }
+
+private:
+    std::unique_ptr<NGSIV2Connector> fiware_connector_;
+    std::vector<std::shared_ptr<Publisher>> publishers_;
+    std::vector<std::shared_ptr<Subscriber>> subscribers_;
+};
+
 
 
 } // namespace fiware

@@ -23,45 +23,127 @@
 
 #include <functional>
 #include <thread>
+#include <future>
 
 #include <iostream>
-
 
 namespace soss {
 namespace fiware {
 
-class SyncPort;
 class Listener {
-
     using DataReceivedCallback = std::function<void(const std::string& message)>;
     using tcp = asio::ip::tcp;
 
 public:
     Listener(
             uint16_t desired_port,
-            DataReceivedCallback callback);
+            DataReceivedCallback callback)
+        : desired_port_{desired_port}
+        , listen_thread_{}
+        , running_{false}
+        , errors_{false}
+        , read_callback_{callback}
+    {}
 
-    virtual ~Listener();
+    virtual ~Listener()
+    {
+        stop();
+    }
 
-    uint16_t run();
-    void stop();
+    uint16_t run()
+    {
+        std::promise<uint16_t> listening_port_promise;
+        std::future<uint16_t> listening_port_future = listening_port_promise.get_future();
+        listen_thread_ = std::thread(&Listener::listen, this, std::ref(listening_port_promise));
+        running_ = true;
+
+        return listening_port_future.get();
+    }
+
+    void stop()
+    {
+        if(running_ && listen_thread_.joinable())
+        {
+            service_.stop();
+            running_ = false;
+            listen_thread_.join();
+
+            for (std::thread& th: message_threads_)
+            {
+                if (th.joinable())
+                {
+                    th.join();
+                }
+            }
+        }
+    }
 
     bool is_running() const { return running_; }
     bool has_errors() const { return errors_; }
 
 private:
     void listen(
-            SyncPort& listening_port);
+            std::promise<uint16_t>& listening_port_promise)
+    {
+        try
+        {
+            asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), desired_port_);
+            asio::error_code error;
+            tcp::acceptor acceptor(service_, endpoint);
+            uint16_t port = acceptor.local_endpoint().port();
+            listening_port_promise.set_value(port);
+
+            std::cout << "[soss-fiware][listener]: listening fiware at port " << port << std::endl;
+
+            start_accept(acceptor);
+            service_.run();
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "[soss-fiware][listener]: connection error: " << e.what() << std::endl;
+            errors_ = true;
+        }
+
+        std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
+    }
 
     void start_accept(
-            tcp::acceptor& acceptor);
+            tcp::acceptor& acceptor)
+    {
+        std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
+
+        acceptor.async_accept(*socket, std::bind(&Listener::accept_handler, this, socket, std::ref(acceptor)));
+    }
+
 
     void accept_handler(
             std::shared_ptr<tcp::socket> socket,
-            tcp::acceptor& acceptor);
+            tcp::acceptor& acceptor)
+    {
+        message_threads_.push_back(std::thread(&Listener::read_msg, this, socket));
+        start_accept(acceptor);
+    }
 
     void read_msg(
-            std::shared_ptr<tcp::socket> socket);
+            std::shared_ptr<tcp::socket> socket)
+    {
+        try
+        {
+            //wait for some data
+            socket->read_some(asio::null_buffers());
+
+            std::string message;
+            message.resize(socket->available());
+
+            socket->read_some(asio::buffer(&message[0], message.size()));
+
+            read_callback_(message);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "[soss-fiware][listener]: connection error at read thread: " << e.what() << std::endl;
+        }
+    }
 
 
     uint16_t desired_port_;
