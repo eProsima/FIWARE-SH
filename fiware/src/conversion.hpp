@@ -29,6 +29,14 @@ using Json = nlohmann::json;
 
 namespace conversion {
 
+inline bool fiware_type_to_soss_type(
+        const Json& /*fiware_type*/,
+        xtypes::StructType& /*soss_type*/)
+{
+    //TODO
+    return true;
+}
+
 inline bool fiware_to_soss(
         const Json& /*fiware_message*/,
         xtypes::DynamicData& soss_message)

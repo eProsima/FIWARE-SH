@@ -29,8 +29,6 @@ namespace soss {
 namespace fiware {
 
 
-using namespace std::placeholders;
-
 NGSIV2Connector::NGSIV2Connector(
         const std::string& remote_host,
         uint16_t remote_port,
@@ -41,10 +39,9 @@ NGSIV2Connector::NGSIV2Connector(
     , port_{remote_port}
     , listener_host_{listener_host}
     , listener_port_{listener_port}
-    , listener_{listener_port, std::bind(&NGSIV2Connector::receive, this, _1)}
+    , listener_{listener_port, std::bind(&NGSIV2Connector::receive, this, std::placeholders::_1)}
     , subscription_callbacks_{}
-{
-}
+{}
 
 std::string NGSIV2Connector::register_subscription(
         const std::string& entity,
@@ -144,6 +141,12 @@ bool NGSIV2Connector::update_entity(
     }
 
     return response.empty();
+}
+
+std::map<std::string, Json> NGSIV2Connector::request_types() const
+{
+    //TODO
+    return std::map<std::string, Json>();
 }
 
 std::string NGSIV2Connector::request(

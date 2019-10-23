@@ -60,9 +60,9 @@ public:
     virtual ~SystemHandle() = default;
 
     bool configure(
-        const RequiredTypes& /* types */,
+        const RequiredTypes& required_types,
         const YAML::Node& configuration,
-        soss::TypeRegistry& /*type_registry*/) override
+        soss::TypeRegistry& type_registry) override
     {
         if (!configuration["host"] || !configuration["port"])
         {
@@ -96,6 +96,19 @@ public:
         }
 
         fiware_connector_ = std::make_unique<NGSIV2Connector>(host, port, subscription_host, subscription_port);
+        std::map<std::string, Json> fiware_raw_types = fiware_connector_->request_types();
+        for(auto&& it: fiware_raw_types)
+        {
+            if(required_types.messages.count(it.first))
+            {
+                xtypes::StructType soss_type(it.first);
+                if(!conversion::fiware_type_to_soss_type(it.second, soss_type))
+                {
+                    std::cerr << "[soss-fiware]: conversion error with type [" << it.first << "]" << std::endl;
+                }
+                type_registry.emplace(it.first, std::move(soss_type));
+            }
+        }
 
         std::cout << "[soss-fiware]: configured!" << std::endl;
         return true;

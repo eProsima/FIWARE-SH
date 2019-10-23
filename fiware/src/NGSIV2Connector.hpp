@@ -58,6 +58,8 @@ public:
             const std::string& type,
             const Json& json_message);
 
+    std::map<std::string, Json> request_types() const;
+
     const std::string& get_host() const { return host_; }
     uint16_t get_port() const { return port_; }
     const Listener& get_listener() const { return listener_; }
