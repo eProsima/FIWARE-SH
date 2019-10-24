@@ -18,6 +18,7 @@
 #ifndef SOSS__FIWARE__INTERNAL__LISTENER_HPP
 #define SOSS__FIWARE__INTERNAL__LISTENER_HPP
 
+#define ASIO_STANDALONE
 #include <asio.hpp>
 
 #include <functional>

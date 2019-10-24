@@ -21,6 +21,10 @@ project(soss-fiware-test)
 find_package(soss-fiware REQUIRED)
 find_package(soss-mock REQUIRED)
 
+if(WIN32)
+    find_package(yaml-cpp REQUIRED)
+endif()
+
 include(CTest)
 include(${PROJECT_SOURCE_DIR}/thirdparty/catch2/cmake/Catch.cmake)
 
@@ -38,7 +42,7 @@ set_target_properties(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
-        -Werror -Wall -Wextra -Wpedantic
+        $<$<CXX_COMPILER_ID:GNU>:-Werror -Wall -Wextra -Wpedantic>
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -49,6 +53,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         soss::mock
+        $<$<PLATFORM_ID:Windows>:yaml-cpp>
 )
 
 target_compile_definitions(${PROJECT_NAME}
@@ -58,3 +63,9 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 catch_discover_tests(${PROJECT_NAME})
+
+# Windows dll dependencies installation
+if(WIN32)
+    find_file(MOCKDLL NAMES "soss-mock.dll" PATHS "${soss-mock_DIR}" PATH_SUFFIXES "lib" )
+    install (FILES ${MOCKDLL} DESTINATION "${CMAKE_INSTALL_PREFIX}/../bin")
+endif()

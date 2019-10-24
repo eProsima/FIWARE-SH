@@ -89,17 +89,15 @@ soss::Message roundtrip(
 bool create_fiware_entity(const std::string& entity, const std::string& type)
 {
     const std::string create_entity_command =
-        "curl " FIWARE_ADDRESS "/v2/entities -s -S -H 'Content-Type: application/json' -d @- <<EOF \n"
-        "{\n"
-        "    \"id\": \"" + entity + "\",\n"
-        "    \"type\": \"" + type + "\",\n"
-        "    \"data\": {\n"
-        "        \"value\": \"\",\n"
-        "        \"type\": \"String\"\n"
-        "    }\n"
-        "}\n"
-        "EOF";
-
+        "curl " FIWARE_ADDRESS "/v2/entities -s -S -H \"Content-Type: application/json\" -d"
+        "\"{"
+        "    \\\"id\\\": \\\""+ entity + "\\\","
+        "    \\\"type\\\": \\\"" + type + "\\\","
+        "    \\\"data\\\": {"
+        "        \\\"value\\\": \\\"\\\","
+        "        \\\"type\\\": \\\"String\\\""
+        "    }"
+        "}\"";
     return 0 == system(create_entity_command.c_str());
 }
 
@@ -107,7 +105,7 @@ bool delete_fiware_entity(const std::string& entity, const std::string& type)
 {
     const std::string delete_entity_command =
         "curl " FIWARE_ADDRESS "/v2/entities/" + entity + "?type=" + type + " -s -S -H \
-        'Accept: application/json' -X DELETE";
+        \"Accept: application/json\" -X DELETE";
 
     return 0 == system(delete_entity_command.c_str());
 }
