@@ -22,7 +22,7 @@
 #include "Subscriber.hpp"
 
 #include <soss/SystemHandle.hpp>
-#include <soss/soss_export.hpp>
+#include <soss/core/export.hpp>
 
 #include <vector>
 #include <memory>
