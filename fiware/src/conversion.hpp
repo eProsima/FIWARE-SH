@@ -126,7 +126,6 @@ inline bool fiware_to_soss(
                 throw false;
         }
     });
-    return true;
 }
 
 
