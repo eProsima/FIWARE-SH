@@ -104,7 +104,7 @@ target_link_libraries(${PROJECT_NAME}
         soss::core
         $<$<PLATFORM_ID:Linux>:curlpp>
         $<$<PLATFORM_ID:Linux>:pthread>
-    )
+)
 
 ########################################################################
 # Installation
