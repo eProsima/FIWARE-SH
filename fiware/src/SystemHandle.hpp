@@ -33,7 +33,7 @@ namespace fiware {
 
 class NGSIV2Connector;
 
-class SYSTEM_HANDLE_EXPORT SystemHandle : public virtual TopicSystem
+class SystemHandle : public virtual TopicSystem
 {
 public:
     SystemHandle() = default;
