@@ -2,7 +2,7 @@
 # This configuration only prepares the communication, and start listening from fiware.
 
 systems:
-    fiware: { type: fiware, host: "192.168.1.139", port: 1026}
+    fiware: { type: fiware, host: "192.168.1.59", port: 1026}
     mock: { type: mock, types-from: fiware}
 
 routes:

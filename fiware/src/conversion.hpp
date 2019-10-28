@@ -73,9 +73,9 @@ inline bool fiware_type_to_soss_type(
 
 
 template<typename T>
-void value_to_soss(const Json& fiware_node, const xtypes::DynamicData::WritableNode& soss_node)
+void value_to_soss(const Json& fiware_node, xtypes::DynamicData::WritableNode& soss_node)
 {
-    const std::string& member_name = soss_node.access().struct_member().name();
+    const std::string& member_name = soss_node.from_member()->name();
     soss_node.data().value(fiware_node[member_name]["value"].get<T>());
 }
 
@@ -83,7 +83,7 @@ inline bool fiware_to_soss(
         const Json& fiware_message,
         xtypes::DynamicData& soss_message)
 {
-    return soss_message.for_each([&](const xtypes::DynamicData::WritableNode& node)
+    return soss_message.for_each([&](xtypes::DynamicData::WritableNode& node)
     {
         switch(node.type().kind())
         {
@@ -132,7 +132,7 @@ inline bool fiware_to_soss(
 template<typename T>
 void value_to_fiware(const xtypes::DynamicData::ReadableNode& soss_node, Json& fiware_node)
 {
-    const std::string& member_name = soss_node.access().struct_member().name();
+    const std::string& member_name = soss_node.from_member()->name();
     fiware_node[member_name]["value"] = soss_node.data().value<T>();
 }
 
