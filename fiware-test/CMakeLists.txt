@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(soss-fiware-test)
 
-find_package(fastrtps REQUIRED)
+find_package(xtypes REQUIRED)
 find_package(soss-fiware REQUIRED)
 find_package(soss-mock REQUIRED)
 

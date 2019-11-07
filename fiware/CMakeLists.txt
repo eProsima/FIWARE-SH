@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(soss-fiware)
 
-find_package(fastrtps REQUIRED)
+find_package(xtypes REQUIRED)
 find_package(soss-core REQUIRED)
 
 if(WIN32)
