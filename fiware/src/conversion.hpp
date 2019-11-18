@@ -39,7 +39,7 @@ inline bool fiware_type_to_soss_type(
     static const std::map<std::string, xtypes::DynamicType::Ptr> types_mapping =
     {
         { "Boolean", xtypes::primitive_type<bool>() },
-        { "int8", xtypes::primitive_type<char>() },
+        { "int8", xtypes::primitive_type<int8_t>() },
         { "uint8", xtypes::primitive_type<uint8_t>() },
         { "int16", xtypes::primitive_type<int16_t>() },
         { "uint16", xtypes::primitive_type<uint16_t>() },
@@ -94,6 +94,9 @@ inline bool fiware_to_soss(
                 break;
             case xtypes::TypeKind::CHAR_8_TYPE:
                 value_to_soss<char>(fiware_message, node);
+                break;
+            case xtypes::TypeKind::INT_8_TYPE:
+                value_to_soss<int8_t>(fiware_message, node);
                 break;
             case xtypes::TypeKind::UINT_8_TYPE:
                 value_to_soss<uint8_t>(fiware_message, node);
@@ -151,6 +154,9 @@ inline bool soss_to_fiware(
                 break;
             case xtypes::TypeKind::CHAR_8_TYPE:
                 value_to_fiware<char>(node, fiware_message);
+                break;
+            case xtypes::TypeKind::INT_8_TYPE:
+                value_to_fiware<int8_t>(node, fiware_message);
                 break;
             case xtypes::TypeKind::UINT_8_TYPE:
                 value_to_fiware<uint8_t>(node, fiware_message);

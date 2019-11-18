@@ -147,7 +147,7 @@ TEST_CASE("Transmit to and receive from fiware", "[fiware]")
             const soss::TypeRegistry& mock_types = *soss_handle.type_registry("mock");
 
             xtypes::DynamicData msg_to_fiware(*mock_types.at(topic_type_name));
-            msg_to_fiware["data"].string(message_data);
+            msg_to_fiware["data"] = message_data;
 
             xtypes::DynamicData msg_from_fiware = roundtrip(topic_sent, topic_recv, msg_to_fiware);
             REQUIRE(msg_to_fiware == msg_from_fiware);
