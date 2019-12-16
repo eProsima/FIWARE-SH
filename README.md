@@ -49,12 +49,14 @@ $ colcon build --packages-up-to soss-fiware
     ```
     $ source install/local_setup.bash
     ```
-7. If you did not set up a running instance of Fiware's Orion Context Broker before, Docker provides with an easy way to configure it on your local machine, using a MongoDB database:
+7. If you did not set up a running instance of Fiware's Orion Context Broker before, Docker provides with an easy way
+    to configure it on your local machine, using a MongoDB database:
     ```
     $ sudo docker run --name mongodb -d mongo:3.4
     $ sudo docker run -d --name orion1 --link mongodb:mongodb -p 1026:1026 fiware/orion -dbhost mongodb
     ```
-    This creates a _fiware/orion_ Docker instance linked to the default Docker bridge network, _docker0_, whose address needs to be known. To retrieve it:
+    This creates a `fiware/orion Docker` instance linked to the default Docker bridge network, `docker0`,
+    whose address needs to be known by `soss-fiware`. To retrieve it:
     ```
     $ ifconfig docker0 | grep "inet "
     ```
