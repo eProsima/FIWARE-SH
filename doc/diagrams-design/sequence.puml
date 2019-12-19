@@ -1,29 +1,38 @@
 @startuml
 actor other_sh
-actor core
+actor soss_core
 participant SystemHandle
 participant Publisher
 participant Subscriber
-participant Conversion
+participant conversion
 participant Connector
 participant Listener
 entity fiware
 
 == initialization ==
-core -> SystemHandle: configure
+soss_core -> SystemHandle: configure
 activate SystemHandle
 SystemHandle -> Connector: __init__()
 Connector -> Listener: __init__()
-core <-- SystemHandle: status
+SystemHandle -> Connector: request_types()
+activate Connector
+Connector -[#0000FF]> fiware: send_request()
+SystemHandle <-- Connector: types_json_description
+deactivate Connector
+SystemHandle -> conversion: fiware_type_to_soss_type()
+activate conversion
+SystemHandle <-- conversion: xtypes
+deactivate conversion
+soss_core <-- SystemHandle: status
 deactivate SystemHandle
 
-core -> SystemHandle: advertise
+soss_core -> SystemHandle: advertise
 activate SystemHandle
 SystemHandle -> Publisher: __init__()
-core <-- SystemHandle: TopicPublisher
+soss_core <-- SystemHandle: TopicPublisher
 deactivate SystemHandle
 
-core -> SystemHandle: subscribe
+soss_core -> SystemHandle: subscribe
 activate SystemHandle
 SystemHandle -> Subscriber: __init__()
 SystemHandle -> Subscriber: subscribe()
@@ -41,25 +50,25 @@ Subscriber <-- Connector: status
 deactivate Connector
 SystemHandle <-- Subscriber: status
 deactivate Subscriber
-core <-- SystemHandle: status
+soss_core <-- SystemHandle: status
 deactivate SystemHandle
 
-core -> SystemHandle: spin_once
+soss_core -> SystemHandle: spin_once
 activate SystemHandle
 SystemHandle -> Connector: get_state()
 activate Connector
 SystemHandle <-- Connector: status
 deactivate Connector
-core <-- SystemHandle: status
+soss_core <-- SystemHandle: status
 deactivate SystemHandle
 
 == to fiware ==
 other_sh -> Publisher: publish()
 activate Publisher
-Publisher -> Conversion: soss_to_fiware()
-activate Conversion
-Publisher <-- Conversion: fiware_topic
-deactivate Conversion
+Publisher -> conversion: soss_to_fiware()
+activate conversion
+Publisher <-- conversion: fiware_message
+deactivate conversion
 Publisher -> Connector: update_entity()
 activate Connector
 Connector -[#0000FF]> fiware: send_request()
@@ -75,10 +84,10 @@ Listener -> Connector: receive_cb()
 activate Connector
 Connector -> Subscriber: receive_cb()
 activate Subscriber
-Subscriber -> Conversion: fiware_to_soss()
-activate Conversion
-Subscriber <-- Conversion: soss_topic
-deactivate Conversion
+Subscriber -> conversion: fiware_to_soss()
+activate conversion
+Subscriber <-- conversion: soss_message
+deactivate conversion
 Subscriber -> other_sh: soss_subscription_cb()
 Connector <-- Subscriber: ok
 deactivate Subscriber
@@ -86,8 +95,23 @@ Listener <-- Connector: ok
 deactivate Connector
 deactivate Listener
 
+== while running ==
+soss_core -> SystemHandle: spin_once
+activate SystemHandle
+SystemHandle -> Connector: check_status()
+activate Connector
+Connector -> Listener: check_status()
+activate Listener
+Connector <-- Listener: status
+deactivate Listener
+SystemHandle <-- Connector: status
+deactivate Connector
+SystemHandle -> SystemHandle: wait_100ms()
+soss_core <-- SystemHandle: status
+deactivate SystemHandle
+
 == destruction ==
-core -> SystemHandle: __destroy__()
+soss_core -> SystemHandle: __destroy__()
 activate SystemHandle
 SystemHandle -> Subscriber: __destroy__()
 activate Subscriber
