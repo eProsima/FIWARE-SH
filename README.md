@@ -85,9 +85,9 @@ Notice that this system handle maps soss messages directly to a JSON compatible 
 
 ### More information
 
-- For more information, you can see the [demo steps](fiware/doc/demo.md)
+- For more information, you can see the [demo steps](doc/demo.md)
 and the related [video](https://drive.google.com/open?id=1w90DAPkovjwj7673d5RfOINlAAc7kWb1)
-- Also, you can have a look at the [internal design](fiware/doc/design.md)
+- Also, you can have a look at the [internal design](doc/design.md)
 - For a fast configuration, you can use the [dockerfile](Dockerfile).
 **NOTICE**: Fiware Orion context broker may not be able to reach the docker IP, as is not accessible outside the host computer by default.
 You can run (or build if necessary) the docker with --network=host to share the network interface of the host with Docker, and make it accessible in your LAN.

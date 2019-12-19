@@ -23,13 +23,14 @@ class Connector {
     + subscription_id register_subscription(entity, callback)
     + bool unregister_subscription(subscription_id)
     + bool update_entity(entity, json_message)
-    - void receive(fiware_message);
+    + bool request_types()
+    - void receive(fiware_message)
 }
 
 class Publisher {
     - topic_name
     - message_type
-    + publish(soss_message)
+    + publish(soss_message) override
 }
 
 class Subscriber {
