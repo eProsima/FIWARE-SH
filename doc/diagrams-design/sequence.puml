@@ -53,15 +53,6 @@ deactivate Subscriber
 soss_core <-- SystemHandle: status
 deactivate SystemHandle
 
-soss_core -> SystemHandle: spin_once
-activate SystemHandle
-SystemHandle -> Connector: get_state()
-activate Connector
-SystemHandle <-- Connector: status
-deactivate Connector
-soss_core <-- SystemHandle: status
-deactivate SystemHandle
-
 == to fiware ==
 other_sh -> Publisher: publish()
 activate Publisher
