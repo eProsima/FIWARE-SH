@@ -51,6 +51,7 @@ inline bool fiware_type_to_soss_type(
         { "Double", xtypes::primitive_type<double>() },
         { "Long", xtypes::primitive_type<long>() },
         { "String",  xtypes::StringType() },
+        { "Text",  xtypes::StringType() },
     };
 
     for(const auto& it: fiware_type.items())
