@@ -145,7 +145,6 @@ inline void value_to_soss<xtypes::StructType>(
         const Json& fiware_node,
         xtypes::DynamicData::WritableNode& soss_node)
 {
-    // const std::string& name = soss_node.from_member()->name();
     xtypes::WritableDynamicDataRef data = soss_node.data();
 
     data.for_each([&](xtypes::DynamicData::WritableNode& node) -> void
