@@ -82,6 +82,64 @@ void value_to_soss(
     soss_node.data().value(fiware_node[member_name]["value"].get<T>());
 }
 
+inline bool value_to_soss(
+        const xtypes::StructType& struct_type,
+        const Json& fiware_node,
+        xtypes::WritableDynamicDataRef soss_node)
+{
+    for (const auto& member : struct_type.members())
+    {
+        const std::string& member_name = member.name();
+        switch (member.type().kind())
+        {
+            case xtypes::TypeKind::CHAR_8_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<char>();
+                break;
+            case xtypes::TypeKind::INT_8_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<int8_t>();
+                break;
+            case xtypes::TypeKind::UINT_8_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<uint8_t>();
+                break;
+            case xtypes::TypeKind::INT_16_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<int16_t>();
+                break;
+            case xtypes::TypeKind::UINT_16_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<uint16_t>();
+                break;
+            case xtypes::TypeKind::INT_32_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<int32_t>();
+                break;
+            case xtypes::TypeKind::UINT_32_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<uint32_t>();
+                break;
+            case xtypes::TypeKind::INT_64_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<int64_t>();
+                break;
+            case xtypes::TypeKind::UINT_64_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<uint64_t>();
+                break;
+            case xtypes::TypeKind::FLOAT_32_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<float>();
+                break;
+            case xtypes::TypeKind::FLOAT_64_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<double>();
+                break;
+            case xtypes::TypeKind::STRING_TYPE:
+                soss_node[member_name] = fiware_node[member_name]["value"].get<std::string>();
+                break;
+            case xtypes::TypeKind::STRUCTURE_TYPE:
+                value_to_soss(static_cast<const xtypes::StructType&>(member.type()),
+                    fiware_node[member_name]["value"], soss_node[member_name]);
+                break;
+            default:
+                throw false;
+        }
+    }
+    return true;
+}
+
+
 template<>
 inline void value_to_soss<xtypes::StructType>(
         const Json& fiware_node,
@@ -149,13 +207,16 @@ inline bool fiware_to_soss(
         const Json& fiware_message,
         xtypes::DynamicData& soss_message)
 {
+    if (xtypes::TypeKind::STRUCTURE_TYPE == soss_message.type().kind())
+    {
+        return value_to_soss(static_cast<const xtypes::StructType&>(soss_message.type()),
+            fiware_message, soss_message);
+    }
+
     return soss_message.for_each([&](xtypes::DynamicData::WritableNode& node)
     {
         switch(node.type().kind())
         {
-            case xtypes::TypeKind::STRUCTURE_TYPE:
-                value_to_soss<xtypes::StructType>(fiware_message, node);
-                break;
             case xtypes::TypeKind::STRING_TYPE:
                 value_to_soss<std::string>(fiware_message, node);
                 break;
@@ -198,7 +259,6 @@ inline bool fiware_to_soss(
     });
 }
 
-
 template<typename T>
 void value_to_fiware(
         const xtypes::DynamicData::ReadableNode& soss_node,
@@ -208,79 +268,77 @@ void value_to_fiware(
     fiware_node[member_name]["value"] = soss_node.data().value<T>();
 }
 
-template<>
-inline void value_to_fiware<xtypes::StructType>(
-        const xtypes::DynamicData::ReadableNode& soss_node,
+inline bool value_to_fiware(
+        const xtypes::StructType& struct_type,
+        const xtypes::ReadableDynamicDataRef soss_node,
         Json& fiware_node)
 {
-    xtypes::ReadableDynamicDataRef data = soss_node.data();
-
-    data.for_each([&](const xtypes::DynamicData::ReadableNode& node) -> void
+    for (const auto& member : struct_type.members())
     {
-        if (nullptr == node.from_member())
-        {
-            return;
-        }
-
-        const std::string& member_name = node.from_member()->name();
-        switch (node.type().kind())
+        const std::string& member_name = member.name();
+        switch (member.type().kind())
         {
             case xtypes::TypeKind::CHAR_8_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<char>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<char>();
                 break;
             case xtypes::TypeKind::INT_8_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<int8_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<int8_t>();
                 break;
             case xtypes::TypeKind::UINT_8_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<uint8_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<uint8_t>();
                 break;
             case xtypes::TypeKind::INT_16_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<int16_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<int16_t>();
                 break;
             case xtypes::TypeKind::UINT_16_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<uint16_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<uint16_t>();
                 break;
             case xtypes::TypeKind::INT_32_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<int32_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<int32_t>();
                 break;
             case xtypes::TypeKind::UINT_32_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<uint32_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<uint32_t>();
                 break;
             case xtypes::TypeKind::INT_64_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<int64_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<int64_t>();
                 break;
             case xtypes::TypeKind::UINT_64_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<uint64_t>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<uint64_t>();
                 break;
             case xtypes::TypeKind::FLOAT_32_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<float>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<float>();
                 break;
             case xtypes::TypeKind::FLOAT_64_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<double>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<double>();
                 break;
             case xtypes::TypeKind::STRING_TYPE:
-                fiware_node[member_name]["value"] = node.data().value<std::string>();
+                fiware_node[member_name]["value"] = soss_node[member_name].value<std::string>();
                 break;
             case xtypes::TypeKind::STRUCTURE_TYPE:
-                value_to_fiware<xtypes::StructType>(node, fiware_node[member_name]);
+                value_to_fiware(static_cast<const xtypes::StructType&>(member.type()),
+                    soss_node[member_name], fiware_node[member_name]["value"]);
                 break;
             default:
-                break;
+                throw false;
         }
-    });
+    }
+    return true;
 }
 
 inline bool soss_to_fiware(
         const xtypes::DynamicData& soss_message,
         Json& fiware_message)
 {
+    if (xtypes::TypeKind::STRUCTURE_TYPE == soss_message.type().kind())
+    {
+        return value_to_fiware(static_cast<const xtypes::StructType&>(soss_message.type()),
+            soss_message, fiware_message);
+    }
+
     return soss_message.for_each([&](const xtypes::DynamicData::ReadableNode& node)
     {
         switch(node.type().kind())
         {
-            case xtypes::TypeKind::STRUCTURE_TYPE:
-                value_to_fiware<xtypes::StructType>(node, fiware_message);
-                break;
             case xtypes::TypeKind::STRING_TYPE:
                 value_to_fiware<std::string>(node, fiware_message);
                 break;
