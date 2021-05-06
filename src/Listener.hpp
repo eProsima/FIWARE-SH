@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+ * Copyright 2019 - present Proyectos y Sistemas de Mantenimiento SL (eProsima).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
-*/
+ */
 
-#ifndef SOSS__FIWARE__INTERNAL__LISTENER_HPP
-#define SOSS__FIWARE__INTERNAL__LISTENER_HPP
+#ifndef _IS_SH_FIWARE__INTERNAL__INTERNAL__LISTENER_HPP_
+#define _IS_SH_FIWARE__INTERNAL__INTERNAL__LISTENER_HPP_
 
 #define ASIO_STANDALONE
 #include <asio.hpp>
+
+#include <is/utils/Log.hpp>
 
 #include <functional>
 #include <thread>
@@ -27,23 +29,31 @@
 
 #include <iostream>
 
-namespace soss {
+namespace eprosima {
+namespace is {
+namespace sh {
 namespace fiware {
 
-class Listener {
+// TODO doxygen
+
+class Listener
+{
     using DataReceivedCallback = std::function<void(const std::string& message)>;
     using tcp = asio::ip::tcp;
 
 public:
+
     Listener(
-            uint16_t desired_port,
+            const uint16_t desired_port,
             DataReceivedCallback callback)
-        : desired_port_{desired_port}
-        , listen_thread_{}
-        , running_{false}
-        , errors_{false}
-        , read_callback_{callback}
-    {}
+        : desired_port_(desired_port)
+        , listen_thread_()
+        , running_(false)
+        , errors_(false)
+        , read_callback_(callback)
+        , logger_("is::sh::FIWARE::Listener")
+    {
+    }
 
     virtual ~Listener()
     {
@@ -62,7 +72,7 @@ public:
 
     void stop()
     {
-        if(running_ && listen_thread_.joinable())
+        if (running_ && listen_thread_.joinable())
         {
             service_.stop();
             running_ = false;
@@ -78,10 +88,18 @@ public:
         }
     }
 
-    bool is_running() const { return running_; }
-    bool has_errors() const { return errors_; }
+    bool is_running() const
+    {
+        return running_;
+    }
+
+    bool has_errors() const
+    {
+        return errors_;
+    }
 
 private:
+
     void listen(
             std::promise<uint16_t>& listening_port_promise)
     {
@@ -93,18 +111,21 @@ private:
             uint16_t port = acceptor.local_endpoint().port();
             listening_port_promise.set_value(port);
 
-            std::cout << "[soss-fiware][listener]: listening fiware at port " << port << std::endl;
+            logger_ << utils::Logger::Level::INFO
+                    << "Listening to FIWARE Context Broker at port " << port << std::endl;
 
             start_accept(acceptor);
             service_.run();
         }
         catch (std::exception& e)
         {
-            std::cerr << "[soss-fiware][listener]: connection error: " << e.what() << std::endl;
+            logger_ << utils::Logger::Level::ERROR
+                    << "Connection error: " << e.what() << std::endl;
             errors_ = true;
         }
 
-        std::cout << "[soss-fiware][listener]: stop listening" << std::endl;
+        logger_ << utils::Logger::Level::INFO
+                << "Stop listening to FIWARE Context Broker" << std::endl;
     }
 
     void start_accept(
@@ -112,9 +133,9 @@ private:
     {
         std::shared_ptr<tcp::socket> socket(new tcp::socket (service_));
 
-        acceptor.async_accept(*socket, std::bind(&Listener::accept_handler, this, socket, std::ref(acceptor)));
+        acceptor.async_accept(
+            *socket, std::bind(&Listener::accept_handler, this, socket, std::ref(acceptor)));
     }
-
 
     void accept_handler(
             std::shared_ptr<tcp::socket> socket,
@@ -137,16 +158,19 @@ private:
 
             socket->read_some(asio::buffer(&message[0], message.size()));
 
+            logger_ << utils::Logger::Level::INFO
+                    << "Process incoming message: '" << message << "'" << std::endl;
+
             read_callback_(message);
         }
         catch (std::exception& e)
         {
-            std::cerr << "[soss-fiware][listener]: connection error at read thread: " << e.what() << std::endl;
+            logger_ << utils::Logger::Level::ERROR
+                    << "Connection error in reading thread: " << e.what() << std::endl;
         }
     }
 
-
-    uint16_t desired_port_;
+    const uint16_t desired_port_;
 
     std::thread listen_thread_;
     std::vector<std::thread> message_threads_;
@@ -157,9 +181,12 @@ private:
 
     asio::io_service service_;
 
+    utils::Logger logger_;
 };
 
-} // namespace fiware
-} // namespace soss
+} //  namespace fiware
+} //  namespace sh
+} //  namespace is
+} //  namespace eprosima
 
-#endif // SOSS__FIWARE__INTERNAL__LISTENER_HPP
+#endif //  _IS_SH_FIWARE__INTERNAL__INTERNAL__LISTENER_HPP_

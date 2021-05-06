@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
-*/
+ */
 
 #include "NGSIV2Connector.hpp"
 
@@ -25,7 +25,9 @@
 #include <iostream>
 #include <sstream>
 
-namespace soss {
+namespace eprosima {
+namespace is {
+namespace sh {
 namespace fiware {
 
 
@@ -35,13 +37,15 @@ NGSIV2Connector::NGSIV2Connector(
         const std::string& listener_host,
         uint16_t listener_port)
 
-    : host_{remote_host}
-    , port_{remote_port}
-    , listener_host_{listener_host}
-    , listener_port_{listener_port}
-    , listener_{listener_port, std::bind(&NGSIV2Connector::receive, this, std::placeholders::_1)}
-    , subscription_callbacks_{}
-{}
+    : host_(remote_host)
+    , port_(remote_port)
+    , listener_host_(listener_host)
+    , listener_port_(listener_port)
+    , listener_(listener_port, std::bind(&NGSIV2Connector::receive, this, std::placeholders::_1))
+    , subscription_callbacks_()
+    , logger_("is::sh::FIWARE::NGSIV2Connector")
+{
+}
 
 std::string NGSIV2Connector::register_subscription(
         const std::string& entity,
@@ -81,20 +85,24 @@ std::string NGSIV2Connector::register_subscription(
 
     if (subscription_id.empty())
     {
-        std::cerr << "[soss-fiware][connector]: error registering subscription, "
-                     "response: " << std::endl << response << std::endl;
+        logger_ << utils::Logger::Level::ERROR
+                << "Registering subscription for entity '" << entity
+                << "' with type '" << type << "' failed; response: '" << response << "'" << std::endl;
 
         return "";
     }
+    else
+    {
+        std::unique_lock<std::mutex> lock(subscription_mutex_);
+        subscription_callbacks_[subscription_id] = callback;
+        lock.unlock();
 
-    std::unique_lock<std::mutex> lock(subscription_mutex_);
-    subscription_callbacks_[subscription_id] = callback;
-    lock.unlock();
+        logger_ << utils::Logger::Level::DEBUG
+                << "Subscription for entity '" << entity << "' with type '" << type
+                << "' registered with ID: " << subscription_id << std::endl;
 
-    std::cout << "[soss-fiware][connector]: subscription registered. "
-                 "ID: " << subscription_id << std::endl;
-
-    return subscription_id;
+        return subscription_id;
+    }
 }
 
 bool NGSIV2Connector::unregister_subscription(
@@ -104,25 +112,30 @@ bool NGSIV2Connector::unregister_subscription(
 
     if (!response.empty())
     {
-        std::cerr << "[soss-fiware][connector]: unsubscription error, "
-                     "response: " << std::endl << response << std::endl;
+        logger_ << utils::Logger::Level::ERROR
+                << "Unregister subscription with ID " << subscription_id
+                << "failed, error response: " << response << std::endl;
 
         return false;
     }
-
-    std::unique_lock<std::mutex> lock(subscription_mutex_);
-    subscription_callbacks_.erase(subscription_id);
-    lock.unlock();
-
-    std::cout <<  "[soss-fiware][connector]: subscription with ID " << subscription_id <<
-                  " unregistered successfully." << std::endl;
-
-    if (subscription_callbacks_.empty() && listener_.is_running())
+    else
     {
-        listener_.stop();
-    }
 
-    return true;
+        std::unique_lock<std::mutex> lock(subscription_mutex_);
+        subscription_callbacks_.erase(subscription_id);
+        lock.unlock();
+
+        logger_ << utils::Logger::Level::DEBUG
+                << "Subscription with ID " << subscription_id
+                << " unregistered successfully." << std::endl;
+
+        if (subscription_callbacks_.empty() && listener_.is_running())
+        {
+            listener_.stop();
+        }
+
+        return true;
+    }
 }
 
 bool NGSIV2Connector::update_entity(
@@ -135,20 +148,28 @@ bool NGSIV2Connector::update_entity(
 
     if (!response.empty())
     {
-        std::cerr << "[soss-fiware][connector]: update entity error, "
-                     "response: " << std::endl << response << std::endl;
+        logger_ << utils::Logger::Level::ERROR
+                << "Update entity '" << entity << "' with type '" << type << "' failed, "
+                << "response: " << response << std::endl;
     }
+    else
+    {
+        logger_ << utils::Logger::Level::DEBUG
+                << "Update entity '" << entity << "' with type '" << type
+                << "': " << json_message << std::endl;
+    }
+
 
     return response.empty();
 }
 
-std::map<std::string, Json> NGSIV2Connector::request_types() const
+std::map<std::string, Json> NGSIV2Connector::request_types()
 {
     std::string response = request("GET", true, "types?", Json{});
     Json request = Json::parse(response.c_str() + response.find('[')); //skip HTTP header
 
     std::map<std::string, Json> types;
-    for(auto& type_info: request)
+    for (auto& type_info: request)
     {
         std::string name = type_info["type"].get<std::string>();
         Json type = type_info["attrs"];
@@ -162,7 +183,7 @@ std::string NGSIV2Connector::request(
         const std::string& method,
         bool response_header,
         const std::string& urn,
-        const Json& json_message) const
+        const Json& json_message)
 {
     try
     {
@@ -197,35 +218,33 @@ std::string NGSIV2Connector::request(
 
         request.perform();
 
-        /*
-        //DEBUG
-        std::cout << "[soss-fiware][connector]: request to fiware, "
-        << "url: " << url.str() << ", "
-        << "method: " << method;
-        if (method != "DELETE" && method != "GET")
+        logger_ << utils::Logger::Level::INFO
+                << "Request to FIWARE, url: '" << url.str() << "', method: '" << method << "'";
+
+        if ("DELETE" != method && "GET" != method)
         {
-            std::cout << ", payload: " << std::endl
-            << "  " << payload;
+            logger_ << ", payload: '" << payload << "'";
         }
-        std::cout << std::endl;
-        */
+        logger_ << std::endl;
 
         return response.str();
     }
     catch (curlpp::LogicError& e)
     {
-        std::cerr << "[soss-fiware][connector]: curl logic error: " << e.what() << std::endl;
+        logger_ << utils::Logger::Level::ERROR
+                << "cURL logic error: " << e.what() << std::endl;
     }
     catch (curlpp::RuntimeError& e)
     {
-        std::cerr << "[soss-fiware][connector]: curl runtime error: " << e.what() << std::endl;
+        logger_ << utils::Logger::Level::ERROR
+                << "cURL runtime error: " << e.what() << std::endl;
     }
 
     return "";
 }
 
 void NGSIV2Connector::receive(
-            const std::string& message)
+        const std::string& message)
 {
     Json json = Json::parse(message.c_str() + message.find('{')); //skip http header
 
@@ -234,7 +253,8 @@ void NGSIV2Connector::receive(
     topic_data.erase("id");
     topic_data.erase("type");
 
-    std::cout << "[soss-fiware][connector] received message from subscription ID: " << subscription_id << " - ";
+    logger_ << utils::Logger::Level::INFO
+            << "Received message from subscription ID: " << subscription_id << " - ";
 
 
     FiwareSubscriptionCallback callback = nullptr;
@@ -249,16 +269,16 @@ void NGSIV2Connector::receive(
 
     if (callback != nullptr)
     {
-        std::cout << "accepted" << std::endl;
+        logger_ << "accepted. Data: [[ " << topic_data << " ]]" << std::endl;
         callback(topic_data);
     }
     else
     {
-        std::cout << "skipping" << std::endl;
+        logger_ << "skipping" << std::endl;
     }
 }
 
-
-} //namespace fiware
-} //namespace soss
-
+} //  namespace fiware
+} //  namespace sh
+} //  namespace is
+} //  namespace eprosima
