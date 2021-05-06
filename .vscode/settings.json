@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.idl": "fidl",
+        "*.ipp": "cpp",
+        "array": "cpp",
+        "any": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp"
+    }
+}

@@ -1,0 +1,39 @@
+name: CI for Integration Service FIWARE SystemHandle
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  fiware-sh_CI:
+    runs-on: ubuntu-20.04
+    container: ubuntu:focal
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/fiware-sh
+
+      - name: Download required dependencies
+        run: |
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt install -y cmake gcc g++ git libboost-dev libboost-program-options-dev libyaml-cpp-dev libcurlpp-dev libasio-dev
+
+      - name: Install colcon
+        run: |
+          apt install -y python3-pip
+          pip3 install -U colcon-common-extensions
+
+      - name: Download the Integration Service
+        run: |
+          git clone --recursive https://github.com/eProsima/Integration-Service src/integration-service
+
+      - name: Build
+        run: |
+          colcon build --cmake-args -DBUILD_FIWARE_TESTS=ON --event-handlers console_direct+
+
+# TODO Missing: Test step. Think about how to do it using the context broker

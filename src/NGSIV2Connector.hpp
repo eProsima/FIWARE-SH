@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+ * Copyright 2019 - present Proyectos y Sistemas de Mantenimiento SL (eProsima).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
-*/
+ */
 
-#ifndef SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP
-#define SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP
+#ifndef _IS_SH_FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP_
+#define _IS_SH_FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP_
 
-#include "json/json.hpp"
+#include <is/json-xtypes/json.hpp>
 
 #include "Listener.hpp"
 
@@ -26,17 +26,22 @@
 #include <map>
 #include <mutex>
 
-namespace soss {
+namespace eprosima {
+namespace is {
+namespace sh {
 namespace fiware {
 
 
 using Json = nlohmann::json;
 
-class NGSIV2Connector {
+// TODO Doxygen
+class NGSIV2Connector
+{
 
     using FiwareSubscriptionCallback = std::function<void(const Json& message)>;
 
 public:
+
     NGSIV2Connector(
             const std::string& remote_host,
             uint16_t remote_port,
@@ -58,20 +63,35 @@ public:
             const std::string& type,
             const Json& json_message);
 
-    std::map<std::string, Json> request_types() const;
+    std::map<std::string, Json> request_types();
 
-    const std::string& get_host() const { return host_; }
-    uint16_t get_port() const { return port_; }
-    const Listener& get_listener() const { return listener_; }
+    const std::string& get_host() const
+    {
+        return host_;
+    }
 
-    bool has_errors() const { return listener_.has_errors(); }
+    uint16_t get_port() const
+    {
+        return port_;
+    }
+
+    const Listener& get_listener() const
+    {
+        return listener_;
+    }
+
+    bool has_errors() const
+    {
+        return listener_.has_errors();
+    }
 
 private:
+
     std::string request(
             const std::string& method,
             bool response_header,
             const std::string& urn,
-            const Json& json_message) const;
+            const Json& json_message);
 
     void receive(
             const std::string& message);
@@ -85,10 +105,14 @@ private:
 
     std::map<std::string, FiwareSubscriptionCallback> subscription_callbacks_;
     std::mutex subscription_mutex_;
+
+    utils::Logger logger_;
 };
 
 
-} // namespace fiware
-} // namespace soss
+} //  namespace fiware
+} //  namespace sh
+} //  namespace is
+} //  namespace eprosima
 
-#endif // SOSS__FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP
+#endif //  _IS_SH_FIWARE__INTERNAL__NGSIV2CONNECTOR_HPP_

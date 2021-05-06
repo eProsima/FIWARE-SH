@@ -1,6 +1,6 @@
 @startuml
 actor other_sh
-actor soss_core
+actor is_core
 participant SystemHandle
 participant Publisher
 participant Subscriber
@@ -10,7 +10,7 @@ participant Listener
 entity fiware
 
 == initialization ==
-soss_core -> SystemHandle: configure
+is_core -> SystemHandle: configure
 activate SystemHandle
 SystemHandle -> Connector: __init__()
 Connector -> Listener: __init__()
@@ -19,20 +19,20 @@ activate Connector
 Connector -[#0000FF]> fiware: send_request()
 SystemHandle <-- Connector: types_json_description
 deactivate Connector
-SystemHandle -> conversion: fiware_type_to_soss_type()
+SystemHandle -> conversion: fiware_type_to_is_type()
 activate conversion
 SystemHandle <-- conversion: xtypes
 deactivate conversion
-soss_core <-- SystemHandle: status
+is_core <-- SystemHandle: status
 deactivate SystemHandle
 
-soss_core -> SystemHandle: advertise
+is_core -> SystemHandle: advertise
 activate SystemHandle
 SystemHandle -> Publisher: __init__()
-soss_core <-- SystemHandle: TopicPublisher
+is_core <-- SystemHandle: TopicPublisher
 deactivate SystemHandle
 
-soss_core -> SystemHandle: subscribe
+is_core -> SystemHandle: subscribe
 activate SystemHandle
 SystemHandle -> Subscriber: __init__()
 SystemHandle -> Subscriber: subscribe()
@@ -50,13 +50,13 @@ Subscriber <-- Connector: status
 deactivate Connector
 SystemHandle <-- Subscriber: status
 deactivate Subscriber
-soss_core <-- SystemHandle: status
+is_core <-- SystemHandle: status
 deactivate SystemHandle
 
 == to fiware ==
 other_sh -> Publisher: publish()
 activate Publisher
-Publisher -> conversion: soss_to_fiware()
+Publisher -> conversion: xtypes_to_json()
 activate conversion
 Publisher <-- conversion: fiware_message
 deactivate conversion
@@ -75,11 +75,11 @@ Listener -> Connector: receive_cb()
 activate Connector
 Connector -> Subscriber: receive_cb()
 activate Subscriber
-Subscriber -> conversion: fiware_to_soss()
+Subscriber -> conversion: json_to_xtypes()
 activate conversion
-Subscriber <-- conversion: soss_message
+Subscriber <-- conversion: is_message
 deactivate conversion
-Subscriber -> other_sh: soss_subscription_cb()
+Subscriber -> other_sh: is_subscription_cb()
 Connector <-- Subscriber: ok
 deactivate Subscriber
 Listener <-- Connector: ok
@@ -87,7 +87,7 @@ deactivate Connector
 deactivate Listener
 
 == while running ==
-soss_core -> SystemHandle: spin_once
+is_core -> SystemHandle: spin_once
 activate SystemHandle
 SystemHandle -> Connector: check_status()
 activate Connector
@@ -98,11 +98,11 @@ deactivate Listener
 SystemHandle <-- Connector: status
 deactivate Connector
 SystemHandle -> SystemHandle: wait_100ms()
-soss_core <-- SystemHandle: status
+is_core <-- SystemHandle: status
 deactivate SystemHandle
 
 == destruction ==
-soss_core -> SystemHandle: __destroy__()
+is_core -> SystemHandle: __destroy__()
 activate SystemHandle
 SystemHandle -> Subscriber: __destroy__()
 activate Subscriber

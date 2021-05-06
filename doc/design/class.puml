@@ -30,7 +30,7 @@ class Connector {
 class Publisher {
     - topic_name
     - message_type
-    + publish(soss_message) override
+    + publish(xtypes_message) override
 }
 
 class Subscriber {
@@ -43,8 +43,8 @@ class Subscriber {
 }
 
 class Conversion << (S,#FF7700) Singleton >> {
-    + fiware_message soss_to_fiware(soss_message)
-    + soss_message fiware_to_soss(fiware_message)
+    + fiware_message xtypes_to_json(xtypes_message)
+    + xtypes_message json_to_xtypes(fiware_message)
 }
 
 class Listener {
