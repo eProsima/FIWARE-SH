@@ -62,7 +62,7 @@ target_link_libraries(${PROJECT_NAME}-integration-test
 
 target_compile_definitions(${PROJECT_NAME}-integration-test
     PRIVATE
-        "FIWARE__IP__TEST_CONFIG=\"127.0.0.1\"" # Public IP for orion.lab.fiware.org
+        "FIWARE__IP__TEST_CONFIG=\"127.0.0.1\""
         "FIWARE__PORT__TEST_CONFIG=\"1026\""
 )
 
