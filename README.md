@@ -8,14 +8,14 @@
 
 ### What is a System Handle?
 
-A [System Handle](https://integration-service.docs.eprosima.com/en/latest/sh.html) is a plugin that allows a certain middleware
+A [System Handle](https://integration-service.docs.eprosima.com/en/latest/user_manual/systemhandle/sh.html) is a plugin that allows a certain middleware
 or communication protocol to speak the same language used by the [eProsima Integration Service](https://github.com/eProsima/Integration-Service),
 that is, *Extensible and Dynamic Topic Types for DDS* (**xTypes**);
 specifically, *Integration Service* bases its intercommunication abilities on eProsima's open source
 implementation for the *xTypes* protocol, that is, [eProsima xTypes](https://github.com/eProsima/xtypes).
 
 <p align="center">
-  <a href="https://integration-service.docs.eprosima.com/en/latest/sh.html"><img src="docs/images/system-handle-architecture.png"></a>
+  <a href="https://integration-service.docs.eprosima.com/en/latest/user_manual/systemhandle/sh.html"><img src="docs/images/system-handle-architecture.png"></a>
 </p>
 
 ### The FIWARE SystemHandle
@@ -39,7 +39,7 @@ intercommunication architecture.
 
 To get a more precise idea on how these YAML files have to be filled and which fields they require
 in order to succesfully configure and launch an *Integration Service* project, please refer to the
-[dedicated configuration section](https://integration-service.docs.eprosima.com/en/latest/yaml_config.html) of the official documentation.
+[dedicated configuration section](https://integration-service.docs.eprosima.com/en/latest/user_manual/yaml_config.html) of the official documentation.
 
 Regarding the *FIWARE System Handle*, there are several specific parameters which must be configured
 for the FIWARE middleware. These parameters are mandatory, and fall as suboptions of the main
@@ -67,7 +67,7 @@ in the project's [main source code repository]([https://](https://github.com/ePr
 
 Some of these examples, where the *FIWARE System Handle* plays a different role in each of them, are introduced here.
 
-<a href="https://integration-service.docs.eprosima.com/en/latest/fiware-ros2.html"><img align="left" width="15" height="38" src="https://via.placeholder.com/15/40c15d/000000?text=+" alt="Green icon"></a>
+<a href="https://integration-service.docs.eprosima.com/en/latest/examples/different_protocols/pubsub/fiware-ros2.html"><img align="left" width="15" height="38" src="https://via.placeholder.com/15/40c15d/000000?text=+" alt="Green icon"></a>
 
 ### FIWARE - ROS 2 bridge  (publisher - subscriber)
 
@@ -76,17 +76,17 @@ to transmit data coming from a ROS 2 publisher into the FIWARE's Context Broker,
 consumed by FIWARE entities entities named equally to the *Integration Service*'s topic name; and viceversa.
 
 <p align="center">
-  <a href="https://integration-service.docs.eprosima.com/en/latest/fiware-ros2.html"><img src="docs/images/fiware_ros2_pubsub_example.png" width="450"></a>
+  <a href="https://integration-service.docs.eprosima.com/en/latest/examples/different_protocols/pubsub/fiware-ros2.html"><img src="docs/images/fiware_ros2_pubsub_example.png" width="450"></a>
 </p>
 
 The configuration file used by *Integration Service* for this example can be found
 [here](https://github.com/eProsima/Integration-Service/blob/main/examples/basic/ros2_fiware__helloworld.yaml).
 
 For a detailed step by step guide on how to build and test this example, please refer to the
-[dedicated section](https://integration-service.docs.eprosima.com/en/latest/fiware-ros2.html) in the official documentation.
+[dedicated section](https://integration-service.docs.eprosima.com/en/latest/examples/different_protocols/pubsub/fiware-ros2.html) in the official documentation.
 ## Compilation flags
 
-Besides the [global compilation flags](https://integration-service.docs.eprosima.com/en/latest/installation.html#global-compilation-flags) available for the
+Besides the [global compilation flags](https://integration-service.docs.eprosima.com/en/latest/installation_manual/installation.html#global-compilation-flags) available for the
 whole *Integration Service* product suite, there are some specific flags which apply only to the
 *FIWARE System Handle*; they are listed below:
 
