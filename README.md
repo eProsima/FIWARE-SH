@@ -99,9 +99,13 @@ whole *Integration Service* product suite, there are some specific flags which a
   ~/is_ws$ colcon build --cmake-args -DBUILD_FIWARE_TESTS=ON
   ```
 
-<!-- TODO: complete when it is uploaded to read the docs
-## API Reference
--->
+## Documentation
+
+The official documentation for the *FIWARE System Handle* is included within the official *Integration Service*
+documentation, hosted by [Read the Docs](https://integration-service.docs.eprosima.com/), and comprises the following sections:
+
+* [Installation Manual](https://integration-service.docs.eprosima.com/en/latest/installation_manual/installation_manual.html)
+* [User Manual](https://integration-service.docs.eprosima.com/en/latest/user_manual/systemhandle/fiware_sh.html)
 
 ## License
 
