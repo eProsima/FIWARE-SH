@@ -29,6 +29,20 @@ The main purpose of the *FIWARE System Handle* is that of establishing a connect
 and an application running over a different middleware implementation.
 This is the classic use-case approach for *Integration Service*.
 
+## Dependencies
+
+This section provides a list of the dependencies needed in order to compile *FIWARE System Handle*.
+
+* [Asio](https://think-async.com/Asio/): C++ library for network and low-level I/O programming.
+* [cURLpp](http://www.curlpp.org/): C++ wrapper for libcURL.
+* [cURL](https://curl.se/): Command-line tool for getting or sending data using URL syntax.
+
+These libraries can be installed using your Linux distribution package manager with the following command:
+
+```
+sudo apt-get install -y libcurlpp-dev libasio-dev libcurl4-openssl-dev
+```
+
 ## Configuration
 
 *Integration Service* is configured by means of a YAML configuration file, which specifies
