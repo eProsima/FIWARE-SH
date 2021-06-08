@@ -93,7 +93,7 @@ public:
                     << topic_name_ << "' with type '" << message_type_.name()
                     << "', payload: [[ " << xtypes_message << " ]]" << std::endl;
 
-            (*is_callback_)(xtypes_message);
+            (*is_callback_)(xtypes_message, nullptr);
         }
         catch (const json_xtypes::UnsupportedType& e)
         {
