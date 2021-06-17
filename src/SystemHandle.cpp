@@ -175,6 +175,12 @@ public:
         return subscribed;
     }
 
+    bool is_internal_message(
+            void* /*filter_handle*/) override final
+    {
+        return false;
+    }
+
     std::shared_ptr<TopicPublisher> advertise(
             const std::string& topic_name,
             const xtypes::DynamicType& message_type,
