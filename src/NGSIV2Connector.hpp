@@ -58,6 +58,11 @@ public:
     bool unregister_subscription(
             const std::string& subscription_id);
 
+    bool create_entity(
+            const std::string& entity,
+            const std::string& type,
+            const Json& json_message);
+
     bool update_entity(
             const std::string& entity,
             const std::string& type,

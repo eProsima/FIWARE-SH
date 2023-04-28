@@ -163,6 +163,38 @@ bool NGSIV2Connector::update_entity(
     return response.empty();
 }
 
+bool NGSIV2Connector::create_entity(
+        const std::string& entity,
+        const std::string& type,
+        const Json& json_message)
+{
+    std::string urn = "entities";
+
+    Json create;
+    create["id"] = entity;
+    create["type"] = type;
+    create["date"]["type"] = type;
+    create.merge_patch(json_message);
+
+    std::string response = request("POST", false, urn, create);
+
+    if (!response.empty())
+    {
+        logger_ << utils::Logger::Level::ERROR
+                << "Create entity '" << entity << "' with type '" << type << "' failed, "
+                << "response: " << response << std::endl;
+    }
+    else
+    {
+        logger_ << utils::Logger::Level::DEBUG
+                << "Create entity '" << entity << "' with type '" << type
+                << "': " << json_message << std::endl;
+    }
+
+
+    return response.empty();
+}
+
 std::map<std::string, Json> NGSIV2Connector::request_types()
 {
     std::string response = request("GET", true, "types?", Json{});

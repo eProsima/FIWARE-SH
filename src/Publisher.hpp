@@ -48,6 +48,27 @@ public:
         , message_type_(message_type)
         , logger_("is::sh::FIWARE::Publisher")
     {
+        try
+        {
+            // Try to create the entity associated
+            // Use defaults value providing an empty data
+            Json fiware_message = json_xtypes::convert(xtypes::DynamicData{message_type}, "value");
+
+            logger_ << utils::Logger::Level::INFO
+                << "Translate message from Integration Service to FIWARE for topic '"
+                << topic_name_ << "' with type '" << message_type_.name()
+                << "', payload: [[ " << fiware_message << " ]]" << std::endl;
+
+            fiware_connector_.create_entity(topic_name_, message_type_.name(), fiware_message);
+        }
+        catch (const json_xtypes::UnsupportedType& e)
+        {
+            logger_ << utils::Logger::Level::ERROR
+                    << "Failed to convert message from Integration Service to FIWARE for topic '"
+                    << topic_name_ << "' with type '" << message_type_.name()
+                    << "'; reason: " << e.what() << std::endl;
+
+        }
     }
 
     virtual ~Publisher() override = default;
