@@ -50,6 +50,14 @@ std::string gen_config_yaml(
         const std::string& topic_recv)
 {
     std::string s;
+
+    s += "types:\n";
+    s += "    idls:\n";
+    s += "        - >\n";
+    s += "            struct " + topic_type_name + " {\n";
+    s += "                string data;\n";
+    s += "            };\n";
+
     s += "systems:\n";
     s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT "}\n";
     s += "    mock: { type: mock, types-from: fiware }\n";
@@ -154,14 +162,14 @@ std::string generate_msg()
 TEST(FIWARE, Transmit_to_and_receive_from_fiware__basic_type)
 {
     const std::string fiware_entity = "fiware_mock_test_basic";
-    const std::string topic_type_name = "String";
+    const std::string topic_type_name = "TestType";
     const std::string topic_sent = "mock_to_fiware_topic";
     const std::string topic_recv = "fiware_to_mock_topic";
 
     //Remove previous instance if exists
     delete_fiware_entity(fiware_entity, topic_type_name);
 
-    ASSERT_TRUE(create_fiware_entity(fiware_entity, topic_type_name));
+    // The context broker entity will be created on subscription
 
     is::core::InstanceHandle is_handle =
             load_test(fiware_entity, topic_type_name, topic_sent, topic_recv);
