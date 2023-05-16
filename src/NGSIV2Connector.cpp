@@ -281,13 +281,9 @@ void NGSIV2Connector::receive(
     Json json = Json::parse(message.c_str() + message.find('{')); //skip http header
 
     std::string subscription_id = json["subscriptionId"];
-    Json topic_data = json["data"][0];
-    topic_data.erase("id");
-    topic_data.erase("type");
 
     logger_ << utils::Logger::Level::INFO
             << "Received message from subscription ID: " << subscription_id << " - ";
-
 
     FiwareSubscriptionCallback callback = nullptr;
 
@@ -301,8 +297,8 @@ void NGSIV2Connector::receive(
 
     if (callback != nullptr)
     {
-        logger_ << "accepted. Data: [[ " << topic_data << " ]]" << std::endl;
-        callback(topic_data);
+        logger_ << "accepted. Data: [[ " << json << " ]]" << std::endl;
+        callback(json);
     }
     else
     {
