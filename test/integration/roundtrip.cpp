@@ -43,13 +43,44 @@ namespace sh {
 namespace fiware {
 namespace test {
 
+enum class test_type {
+    basic_type,
+    complex_type,
+};
+
 std::string gen_config_yaml(
         const std::string& topic_type_name,
         const std::string& fiware_entity,
         const std::string& topic_sent,
-        const std::string& topic_recv)
+        const std::string& topic_recv,
+        const test_type e = test_type::basic_type
+        )
 {
     std::string s;
+
+    switch (e)
+    {
+        case test_type::basic_type:
+            s += "types:\n";
+            s += "    idls:\n";
+            s += "        - >\n";
+            s += "            struct " + topic_type_name + " {\n";
+            s += "                string data;\n";
+            s += "            };\n";
+        break;
+        case test_type::complex_type:
+            s += "types:\n";
+            s += "    idls:\n";
+            s += "        - >\n";
+            s += "            struct " + topic_type_name + " {\n";
+            s += "                float x;\n";
+            s += "                float y;\n";
+            s += "                float z;\n";
+            s += "                float w;\n";
+            s += "            };\n";
+        break;
+    };
+
     s += "systems:\n";
     s += "    fiware: { type: fiware, host: \"" FIWARE_IP "\", port: " FIWARE_PORT "}\n";
     s += "    mock: { type: mock, types-from: fiware }\n";
@@ -76,9 +107,10 @@ is::core::InstanceHandle load_test(
         const std::string& fiware_entity,
         const std::string& topic_type_name,
         const std::string topic_sent,
-        const std::string topic_recv)
+        const std::string topic_recv,
+        const test_type e = test_type::basic_type)
 {
-    std::string config_yaml = gen_config_yaml(topic_type_name, fiware_entity, topic_sent, topic_recv);
+    std::string config_yaml = gen_config_yaml(topic_type_name, fiware_entity, topic_sent, topic_recv, e);
     const YAML::Node config_node = YAML::Load(config_yaml);
     is::core::InstanceHandle is_handle = is::run_instance(config_node);
 
@@ -154,26 +186,59 @@ std::string generate_msg()
 TEST(FIWARE, Transmit_to_and_receive_from_fiware__basic_type)
 {
     const std::string fiware_entity = "fiware_mock_test_basic";
-    const std::string topic_type_name = "String";
+    const std::string topic_type_name = "TestType";
     const std::string topic_sent = "mock_to_fiware_topic";
     const std::string topic_recv = "fiware_to_mock_topic";
 
     //Remove previous instance if exists
     delete_fiware_entity(fiware_entity, topic_type_name);
 
-    ASSERT_TRUE(create_fiware_entity(fiware_entity, topic_type_name));
+    // The context broker entity will be created on subscription
 
     is::core::InstanceHandle is_handle =
             load_test(fiware_entity, topic_type_name, topic_sent, topic_recv);
     ASSERT_TRUE(is_handle);
 
+    const is::TypeRegistry* mock_types = is_handle.type_registry("mock");
+    EXPECT_NE(nullptr, mock_types);
+
     std::string message_data = generate_msg();
+    xtypes::DynamicData msg_to_fiware(*mock_types->at(topic_type_name));
+    msg_to_fiware["data"] = message_data;
+
+    xtypes::DynamicData msg_from_fiware(*mock_types->at(topic_type_name));
+    roundtrip(topic_sent, topic_recv, msg_to_fiware, msg_from_fiware);
+    ASSERT_EQ(msg_to_fiware, msg_from_fiware);
+
+    ASSERT_EQ(0, is_handle.quit().wait_for(1s));
+
+    ASSERT_TRUE(delete_fiware_entity(fiware_entity, topic_type_name));
+}
+
+TEST(FIWARE, Transmit_to_and_receive_from_fiware__complex_type)
+{
+    const std::string fiware_entity = "fiware_mock_test_basic";
+    const std::string topic_type_name = "TestType";
+    const std::string topic_sent = "mock_to_fiware_topic";
+    const std::string topic_recv = "fiware_to_mock_topic";
+
+    //Remove previous instance if exists
+    delete_fiware_entity(fiware_entity, topic_type_name);
+
+    // The context broker entity will be created on subscription
+
+    is::core::InstanceHandle is_handle =
+            load_test(fiware_entity, topic_type_name, topic_sent, topic_recv, test_type::complex_type);
+    ASSERT_TRUE(is_handle);
 
     const is::TypeRegistry* mock_types = is_handle.type_registry("mock");
     EXPECT_NE(nullptr, mock_types);
 
     xtypes::DynamicData msg_to_fiware(*mock_types->at(topic_type_name));
-    msg_to_fiware["data"] = message_data;
+    msg_to_fiware["x"] = 0.1f;
+    msg_to_fiware["y"] = 0.2f;
+    msg_to_fiware["z"] = 0.3f;
+    msg_to_fiware["w"] = 1.0f;
 
     xtypes::DynamicData msg_from_fiware(*mock_types->at(topic_type_name));
     roundtrip(topic_sent, topic_recv, msg_to_fiware, msg_from_fiware);

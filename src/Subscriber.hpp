@@ -36,6 +36,49 @@ namespace fiware {
 // TODO doxygen
 class Subscriber
 {
+    //! Translate NGSIV2 subscriber message into a utils suitable format
+    Json translate(const Json& ngi)
+    {
+        if (ngi.is_array())
+        {
+            Json res;
+
+            for (auto& el : ngi)
+            {
+                res.push_back(translate(el));
+            }
+
+            return res;
+        }
+        else if (ngi.is_object())
+        {
+            if ( ngi.find("value") != ngi.end() )
+            {
+                // inner object
+                return translate(ngi["value"]);
+            }
+            else
+            {
+                // outer object, ignore those that are not objects
+                Json res;
+
+                for (auto it = ngi.begin(); it != ngi.end(); ++it)
+                {
+                    if (it->is_object())
+                    {
+                        auto r = translate(it.value());
+                        res[it.key()] = r.is_array() ? r[0] : r;
+                    }
+                }
+
+                return res;
+            }
+        }
+
+        // ignore non structure members
+        return {ngi};
+    };
+
 public:
 
     Subscriber(
@@ -86,12 +129,14 @@ public:
     {
         try
         {
-            xtypes::DynamicData xtypes_message = json_xtypes::convert(message_type_, fiware_message, "value");
+            Json msg = translate(fiware_message["data"][0]);
+            xtypes::DynamicData xtypes_message = json_xtypes::convert(message_type_, msg);
 
             logger_ << utils::Logger::Level::INFO
                     << "Translate message from FIWARE to Integration Service for topic '"
                     << topic_name_ << "' with type '" << message_type_.name()
-                    << "', payload: [[ " << xtypes_message << " ]]" << std::endl;
+                    << "', payload: [[ " << xtypes_message << " ]]"
+                    << ", data: [[ " << msg << " ]]" << std::endl;
 
             (*is_callback_)(xtypes_message, nullptr);
         }
